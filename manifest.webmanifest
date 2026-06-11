@@ -1,0 +1,20 @@
+{
+  "name": "週予算家計簿",
+  "short_name": "家計簿",
+  "description": "週ごとの予算と残額を確認する個人用家計簿です。",
+  "lang": "ja",
+  "start_url": "./kakeibo.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#edf4ef",
+  "theme_color": "#edf4ef",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
