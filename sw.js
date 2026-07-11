@@ -1,15 +1,8 @@
-const CACHE_NAME = "weekly-kakeibo-v1";
-const APP_FILES = [
-  "./",
-  "./kakeibo.html",
-  "./manifest.webmanifest",
-  "./icon.svg"
-];
+const CACHE_NAME = "weekly-kakeibo-v3";
+const APP_FILES = ["./", "./index.html", "./kakeibo.html", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_FILES))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_FILES)));
   self.skipWaiting();
 });
 

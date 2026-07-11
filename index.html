@@ -16,37 +16,26 @@
       color-scheme: light;
       --paper: #edf4ef;
       --surface: rgba(255, 255, 255, .62);
-      --surface-strong: rgba(255, 255, 255, .82);
       --ink: #20272c;
       --muted: #65717a;
       --line: rgba(120, 143, 136, .28);
       --green: #16806a;
-      --green-soft: rgba(218, 242, 231, .76);
       --blue: #315f9f;
-      --blue-soft: rgba(216, 230, 249, .7);
       --red: #b04437;
-      --red-soft: rgba(251, 225, 219, .72);
-      --gold: #9a6b05;
       --terracotta: #be684f;
       --shadow: 0 18px 42px rgba(44, 63, 67, .13);
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      min-height: 100%;
-      background: var(--paper);
-    }
-
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { min-height: 100%; background: var(--paper); }
     body {
       min-height: 100%;
       margin: 0;
       background:
-        linear-gradient(120deg, rgba(255, 255, 255, .66) 0%, rgba(255, 248, 231, .52) 34%, rgba(221, 239, 232, .64) 100%),
-        repeating-linear-gradient(90deg, rgba(32, 39, 44, .035) 0 1px, transparent 1px 24px),
-        repeating-linear-gradient(0deg, rgba(32, 39, 44, .026) 0 1px, transparent 1px 24px),
+        linear-gradient(120deg, rgba(255,255,255,.66), rgba(255,248,231,.52) 34%, rgba(221,239,232,.64)),
+        repeating-linear-gradient(90deg, rgba(32,39,44,.035) 0 1px, transparent 1px 24px),
+        repeating-linear-gradient(0deg, rgba(32,39,44,.026) 0 1px, transparent 1px 24px),
         var(--paper);
       color: var(--ink);
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
@@ -59,24 +48,17 @@
       inset: 0;
       z-index: -1;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, .4), transparent 42%),
-        linear-gradient(135deg, rgba(22, 128, 106, .12), transparent 38%),
-        linear-gradient(315deg, rgba(190, 104, 79, .12), transparent 36%);
+        linear-gradient(180deg, rgba(255,255,255,.4), transparent 42%),
+        linear-gradient(135deg, rgba(22,128,106,.12), transparent 38%),
+        linear-gradient(315deg, rgba(190,104,79,.12), transparent 36%);
       pointer-events: none;
     }
 
-    button,
-    input,
-    select {
-      font: inherit;
-    }
-
-    button {
-      -webkit-tap-highlight-color: transparent;
-    }
+    button, input, select { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
 
     .app {
-      width: min(100%, 520px);
+      width: min(100%, 540px);
       margin: 0 auto;
       padding: max(18px, env(safe-area-inset-top)) 16px max(28px, env(safe-area-inset-bottom));
     }
@@ -96,6 +78,13 @@
       letter-spacing: 0;
     }
 
+    h2 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
     .subtitle {
       margin-top: 6px;
       color: var(--muted);
@@ -103,31 +92,48 @@
       line-height: 1.45;
     }
 
-    .month-select {
-      min-width: 118px;
-      height: 40px;
-      border: 1px solid rgba(255, 255, 255, .64);
+    .select-small, input, select {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid rgba(255,255,255,.64);
       border-radius: 8px;
-      background: rgba(255, 255, 255, .54);
+      background: rgba(255,255,255,.7);
       color: var(--ink);
-      padding: 0 10px;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .72), 0 8px 20px rgba(44, 63, 67, .08);
+      padding: 10px 12px;
+      outline: none;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 6px 14px rgba(44,63,67,.05);
+    }
+
+    .select-small {
+      min-width: 130px;
+      width: auto;
+      min-height: 40px;
+      background: rgba(255,255,255,.54);
       backdrop-filter: blur(18px) saturate(135%);
       -webkit-backdrop-filter: blur(18px) saturate(135%);
+    }
+
+    input:focus, select:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(15,123,99,.14);
+    }
+
+    .hero, .panel {
+      border: 1px solid rgba(255,255,255,.62);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px) saturate(136%);
+      -webkit-backdrop-filter: blur(18px) saturate(136%);
     }
 
     .hero {
       display: grid;
       gap: 12px;
       padding: 18px;
-      border: 1px solid rgba(255, 255, 255, .64);
-      border-radius: 8px;
       background:
-        linear-gradient(135deg, rgba(255, 255, 255, .78), rgba(238, 249, 245, .52)),
-        linear-gradient(160deg, rgba(49, 95, 159, .11), rgba(190, 104, 79, .08));
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(22px) saturate(142%);
-      -webkit-backdrop-filter: blur(22px) saturate(142%);
+        linear-gradient(135deg, rgba(255,255,255,.78), rgba(238,249,245,.52)),
+        linear-gradient(160deg, rgba(49,95,159,.11), rgba(190,104,79,.08));
     }
 
     .hero-top {
@@ -150,36 +156,33 @@
       font-size: clamp(34px, 10vw, 50px);
       font-weight: 800;
       line-height: 1;
-      letter-spacing: 0;
       overflow-wrap: anywhere;
     }
 
-    .remaining.negative {
-      color: var(--red);
-    }
+    .negative { color: var(--red); }
 
     .pill {
       display: inline-flex;
       align-items: center;
       min-height: 34px;
       padding: 6px 10px;
-      border: 1px solid rgba(255, 255, 255, .66);
+      border: 1px solid rgba(255,255,255,.66);
       border-radius: 999px;
-      background: var(--green-soft);
+      background: rgba(218,242,231,.76);
       color: #0b5947;
       font-size: 12px;
       font-weight: 700;
       white-space: nowrap;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .66);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.66);
     }
 
     .meter {
       height: 12px;
       overflow: hidden;
       border-radius: 999px;
-      background: rgba(255, 255, 255, .54);
-      border: 1px solid rgba(255, 255, 255, .72);
-      box-shadow: inset 0 1px 6px rgba(44, 63, 67, .12);
+      background: rgba(255,255,255,.54);
+      border: 1px solid rgba(255,255,255,.72);
+      box-shadow: inset 0 1px 6px rgba(44,63,67,.12);
     }
 
     .meter span {
@@ -193,17 +196,17 @@
 
     .stats {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 8px;
     }
 
     .stat {
       min-width: 0;
       padding: 10px;
-      border: 1px solid rgba(255, 255, 255, .58);
+      border: 1px solid rgba(255,255,255,.58);
       border-radius: 8px;
-      background: rgba(255, 255, 255, .48);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .62);
+      background: rgba(255,255,255,.48);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.62);
     }
 
     .stat strong {
@@ -214,19 +217,8 @@
       overflow-wrap: anywhere;
     }
 
-    section {
-      margin-top: 16px;
-    }
-
-    .panel {
-      padding: 14px;
-      border: 1px solid rgba(255, 255, 255, .62);
-      border-radius: 8px;
-      background: var(--surface);
-      box-shadow: 0 12px 26px rgba(44, 63, 67, .08);
-      backdrop-filter: blur(18px) saturate(136%);
-      -webkit-backdrop-filter: blur(18px) saturate(136%);
-    }
+    section { margin-top: 16px; }
+    .panel { padding: 14px; box-shadow: 0 12px 26px rgba(44,63,67,.08); }
 
     .section-title {
       display: flex;
@@ -236,17 +228,30 @@
       margin-bottom: 12px;
     }
 
-    h2 {
-      margin: 0;
-      font-size: 17px;
-      line-height: 1.25;
-      letter-spacing: 0;
-    }
-
-    form {
+    form, .settings-grid, .history, .week-list, .category-list, .schedule-list {
       display: grid;
       gap: 10px;
     }
+
+    .summary-note { display:flex; justify-content:space-between; gap:10px; padding:10px 12px; border-left:3px solid var(--terracotta); background:rgba(255,248,238,.62); color:var(--muted); font-size:12px; }
+    .segmented { display:grid; grid-template-columns:1fr 1fr; gap:4px; padding:4px; border-radius:8px; background:rgba(255,255,255,.48); }
+    .segmented label { position:relative; }
+    .segmented input { position:absolute; opacity:0; pointer-events:none; }
+    .segmented span { display:grid; place-items:center; min-height:40px; border-radius:6px; color:var(--muted); font-size:13px; font-weight:800; }
+    .segmented input:checked + span { background:rgba(255,255,255,.9); color:var(--green); box-shadow:0 3px 10px rgba(44,63,67,.09); }
+    .schedule-amount { text-align:right; }
+    .schedule-amount strong { display:block; }
+    .schedule-actions { display:flex; gap:6px; justify-content:flex-end; margin-top:7px; }
+    .planned { color:var(--terracotta); }
+    details.panel { padding:0; }
+    details.panel > summary { display:flex; align-items:center; justify-content:space-between; min-height:54px; padding:14px; cursor:pointer; font-size:17px; font-weight:800; list-style:none; }
+    details.panel > summary::-webkit-details-marker { display:none; }
+    details.panel > summary::after { content:"⌄"; color:var(--muted); }
+    details.panel[open] > summary::after { content:"⌃"; }
+    .details-body { padding:0 14px 14px; }
+    .schedule-editor { margin-top:10px; border-top:1px solid var(--line); }
+    .schedule-editor > summary { padding:12px 2px 2px; color:var(--green); cursor:pointer; font-size:13px; font-weight:800; }
+    .schedule-editor > form { margin-top:12px; }
 
     .grid-2 {
       display: grid;
@@ -254,39 +259,10 @@
       gap: 10px;
     }
 
-    .field {
-      display: grid;
-      gap: 6px;
-    }
+    .field { display: grid; gap: 6px; }
+    .field span { color: var(--muted); font-size: 12px; font-weight: 700; }
 
-    .field span {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    input,
-    select {
-      width: 100%;
-      min-height: 46px;
-      border: 1px solid rgba(255, 255, 255, .64);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, .7);
-      color: var(--ink);
-      padding: 10px 12px;
-      outline: none;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), 0 6px 14px rgba(44, 63, 67, .05);
-    }
-
-    input:focus,
-    select:focus {
-      border-color: var(--green);
-      box-shadow: 0 0 0 3px rgba(15, 123, 99, .14);
-    }
-
-    .primary,
-    .secondary,
-    .icon-button {
+    .primary, .secondary, .icon-button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -301,139 +277,58 @@
       width: 100%;
       background: linear-gradient(135deg, #16806a, #315f9f);
       color: #fff;
-      box-shadow: 0 12px 22px rgba(49, 95, 159, .2);
+      box-shadow: 0 12px 22px rgba(49,95,159,.2);
     }
 
     .secondary {
-      background: rgba(255, 255, 255, .56);
-      border-color: rgba(255, 255, 255, .68);
+      background: rgba(255,255,255,.56);
+      border-color: rgba(255,255,255,.68);
       color: var(--ink);
       padding: 0 12px;
       font-size: 13px;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .72), 0 7px 16px rgba(44, 63, 67, .06);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.72), 0 7px 16px rgba(44,63,67,.06);
     }
 
     .icon-button {
       width: 38px;
       height: 38px;
       min-height: 38px;
-      background: rgba(255, 255, 255, .62);
-      border-color: rgba(255, 255, 255, .7);
+      background: rgba(255,255,255,.62);
+      border-color: rgba(255,255,255,.7);
       color: var(--ink);
       font-size: 18px;
       line-height: 1;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .74);
     }
 
-    .icon-button.danger {
+    .danger {
       color: var(--red);
-      background: var(--red-soft);
-      border-color: rgba(179, 38, 30, .24);
+      background: rgba(251,225,219,.72);
+      border-color: rgba(179,38,30,.24);
     }
 
-    .week-list {
-      display: grid;
-      gap: 8px;
-    }
-
-    .week-row {
+    .row, .entry, .category-chip {
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 10px;
       align-items: center;
       padding: 12px;
-      border: 1px solid rgba(255, 255, 255, .6);
+      border: 1px solid rgba(255,255,255,.6);
       border-radius: 8px;
-      background: rgba(255, 255, 255, .54);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .64);
+      background: rgba(255,255,255,.54);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.64);
     }
 
-    .week-row.current {
-      border-color: rgba(22, 128, 106, .36);
-      background: linear-gradient(135deg, rgba(224, 245, 236, .78), rgba(255, 255, 255, .5));
+    .row.current {
+      border-color: rgba(22,128,106,.36);
+      background: linear-gradient(135deg, rgba(224,245,236,.78), rgba(255,255,255,.5));
     }
 
-    .week-name {
-      font-weight: 800;
-      line-height: 1.25;
-    }
-
-    .week-range {
-      margin-top: 3px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .week-money {
-      text-align: right;
-      font-weight: 800;
-      line-height: 1.25;
-    }
-
-    .week-money small {
-      display: block;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-    .history {
-      display: grid;
-      gap: 8px;
-    }
-
-    .entry {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: center;
-      padding: 12px;
-      border: 1px solid rgba(255, 255, 255, .6);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, .56);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .66);
-    }
-
-    .entry-main {
-      min-width: 0;
-    }
-
-    .entry-title {
-      display: flex;
-      gap: 8px;
-      align-items: baseline;
-      min-width: 0;
-    }
-
-    .entry-title strong,
-    .entry-note {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .entry-title strong {
-      min-width: 0;
-      font-size: 15px;
-    }
-
-    .entry-date,
-    .entry-note {
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .entry-amount {
-      text-align: right;
-      font-weight: 900;
-    }
-
-    .entry-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 6px;
-      margin-top: 7px;
-    }
+    .row-name, .entry-amount { font-weight: 900; }
+    .row-sub, .entry-date, .entry-note { color: var(--muted); font-size: 12px; }
+    .row-money { text-align: right; font-weight: 900; }
+    .entry-title { display: flex; gap: 8px; align-items: baseline; min-width: 0; }
+    .entry-title strong, .entry-note { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .entry-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 7px; }
 
     .empty {
       padding: 18px 8px;
@@ -442,16 +337,17 @@
       font-size: 14px;
     }
 
-    .settings-grid {
-      display: grid;
-      gap: 10px;
-    }
-
     .footer-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       margin-top: 10px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
     }
 
     .toast {
@@ -463,7 +359,7 @@
       max-width: min(92vw, 420px);
       padding: 10px 14px;
       border-radius: 8px;
-      background: rgba(32, 39, 44, .88);
+      background: rgba(32,39,44,.88);
       color: #fff;
       opacity: 0;
       pointer-events: none;
@@ -474,30 +370,13 @@
       -webkit-backdrop-filter: blur(12px);
     }
 
-    .toast.show {
-      opacity: 1;
-      transform: translate(-50%, 0);
-    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-    @media (max-width: 380px) {
-      .app {
-        padding-left: 12px;
-        padding-right: 12px;
-      }
-
-      .grid-2,
-      .stats,
-      .footer-actions {
-        grid-template-columns: 1fr;
-      }
-
-      header {
-        display: grid;
-      }
-
-      .month-select {
-        width: 100%;
-      }
+    @media (max-width: 390px) {
+      .app { padding-left: 12px; padding-right: 12px; }
+      .grid-2, .stats, .footer-actions { grid-template-columns: 1fr; }
+      header { display: grid; }
+      .select-small { width: 100%; }
     }
   </style>
 </head>
@@ -506,12 +385,12 @@
     <header>
       <div>
         <h1>週予算家計簿</h1>
-        <div class="subtitle" id="monthLabel">今月の支出を週ごとに管理</div>
+        <div class="subtitle" id="periodLabel">予算期間を読み込み中</div>
       </div>
-      <select class="month-select" id="monthSelect" aria-label="表示する月"></select>
+      <select class="select-small" id="periodSelect" aria-label="表示する期間"></select>
     </header>
 
-    <section class="hero" aria-label="今週の予算状況">
+    <section class="hero" aria-label="予算状況">
       <div class="hero-top">
         <div>
           <span class="label">今週あと使える金額</span>
@@ -521,19 +400,12 @@
       </div>
       <div class="meter" aria-hidden="true"><span id="meter"></span></div>
       <div class="stats">
-        <div class="stat">
-          <span class="label">今週の支出</span>
-          <strong id="weekSpent">¥0</strong>
-        </div>
-        <div class="stat">
-          <span class="label">1日あたり</span>
-          <strong id="dailySafe">¥0</strong>
-        </div>
-        <div class="stat">
-          <span class="label">月合計</span>
-          <strong id="monthSpent">¥0</strong>
-        </div>
+        <div class="stat"><span class="label">今週の支出</span><strong id="weekSpent">¥0</strong></div>
+        <div class="stat"><span class="label">1日あたり</span><strong id="dailySafe">¥0</strong></div>
+        <div class="stat"><span class="label">期間の支出</span><strong id="periodSpent">¥0</strong></div>
+        <div class="stat"><span class="label">期間の残高</span><strong id="periodRemaining">¥0</strong></div>
       </div>
+      <div class="summary-note"><span>うち今後の予定</span><strong id="periodPlanned">¥0</strong></div>
     </section>
 
     <section class="panel" aria-labelledby="entryTitle">
@@ -544,60 +416,62 @@
       <form id="entryForm">
         <input type="hidden" id="editingId">
         <div class="grid-2">
-          <label class="field">
-            <span>金額</span>
-            <input id="amount" inputmode="numeric" autocomplete="off" placeholder="例: 980" required>
-          </label>
-          <label class="field">
-            <span>日付</span>
-            <input id="date" type="date" required>
-          </label>
+          <label class="field"><span>金額</span><input id="amount" inputmode="numeric" autocomplete="off" placeholder="例: 980" required></label>
+          <label class="field"><span>日付</span><input id="date" type="date" required></label>
         </div>
         <div class="grid-2">
-          <label class="field">
-            <span>カテゴリ</span>
-            <select id="category">
-              <option>食費</option>
-              <option>日用品</option>
-              <option>交通</option>
-              <option>外食</option>
-              <option>趣味</option>
-              <option>その他</option>
-            </select>
-          </label>
-          <label class="field">
-            <span>メモ</span>
-            <input id="note" maxlength="32" placeholder="任意">
-          </label>
+          <label class="field"><span>カテゴリ</span><select id="category"></select></label>
+          <label class="field"><span>メモ</span><input id="note" maxlength="32" placeholder="任意"></label>
         </div>
         <button class="primary" type="submit" id="submitButton">追加する</button>
       </form>
     </section>
 
     <section class="panel" aria-labelledby="weeksTitle">
-      <div class="section-title">
-        <h2 id="weeksTitle">週ごとの残り</h2>
-      </div>
+      <div class="section-title"><h2 id="weeksTitle">週ごとの残り</h2></div>
       <div class="week-list" id="weekList"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="scheduleTitle">
+      <div class="section-title"><div><h2 id="scheduleTitle">固定費・予定</h2><div class="subtitle">先に確保して、使える残高へ反映</div></div></div>
+      <div class="schedule-list" id="scheduleList"></div>
+      <details class="schedule-editor" id="scheduleEditor">
+      <summary>予定を登録・編集</summary>
+      <form id="scheduleForm">
+        <input type="hidden" id="scheduleEditingId">
+        <div class="segmented" role="radiogroup" aria-label="予定の種類">
+          <label><input type="radio" name="scheduleType" value="monthly" checked><span>毎月</span></label>
+          <label><input type="radio" name="scheduleType" value="once"><span>1回だけ</span></label>
+        </div>
+        <div class="grid-2">
+          <label class="field"><span>名前</span><input id="scheduleName" maxlength="24" placeholder="例: 動画サービス" required></label>
+          <label class="field"><span>基本の金額</span><input id="scheduleAmount" inputmode="numeric" placeholder="例: 3300" required></label>
+        </div>
+        <div class="grid-2">
+          <label class="field"><span>カテゴリ</span><select id="scheduleCategory"></select></label>
+          <label class="field" id="scheduleDayField"><span>毎月の日</span><input id="scheduleDay" type="number" min="1" max="28" value="10" inputmode="numeric"></label>
+          <label class="field" id="scheduleDateField" hidden><span>支出予定日</span><input id="scheduleDate" type="date"></label>
+        </div>
+        <button class="primary" type="submit" id="scheduleSubmit">予定を追加</button>
+      </form>
+      </details>
     </section>
 
     <section class="panel" aria-labelledby="historyTitle">
       <div class="section-title">
-        <h2 id="historyTitle">今月の履歴</h2>
-        <button class="secondary" type="button" id="clearMonth">月を空にする</button>
+        <h2 id="historyTitle">期間内の履歴</h2>
+        <button class="secondary" type="button" id="clearPeriod">期間を空にする</button>
       </div>
       <div class="history" id="history"></div>
     </section>
 
-    <section class="panel" aria-labelledby="settingsTitle">
-      <div class="section-title">
-        <h2 id="settingsTitle">設定</h2>
-      </div>
-      <div class="settings-grid">
-        <label class="field">
-          <span>週予算</span>
-          <input id="weeklyBudget" inputmode="numeric" autocomplete="off">
-        </label>
+    <details class="panel" aria-labelledby="settingsTitle">
+      <summary id="settingsTitle">設定</summary>
+      <div class="details-body"><div class="settings-grid">
+        <div class="grid-2">
+          <label class="field"><span>週予算</span><input id="weeklyBudget" inputmode="numeric" autocomplete="off"></label>
+          <label class="field"><span>リセット日</span><input id="resetDay" type="number" min="1" max="28" inputmode="numeric"></label>
+        </div>
         <label class="field">
           <span>週の始まり</span>
           <select id="weekStart">
@@ -605,41 +479,47 @@
             <option value="0">日曜日</option>
           </select>
         </label>
+        <form id="categoryForm">
+          <div class="grid-2">
+            <label class="field"><span>カテゴリを追加</span><input id="newCategory" maxlength="16" placeholder="例: 医療費"></label>
+            <button class="secondary" type="submit">追加</button>
+          </div>
+        </form>
+        <div class="category-list" id="categoryList"></div>
+        <div class="note">リセット日を10にすると、7/10〜8/9のように集計します。安全のため29〜31日は選べない仕様にしています。</div>
       </div>
       <div class="footer-actions">
         <button class="secondary" type="button" id="saveSettings">設定を保存</button>
-        <button class="secondary" type="button" id="exportCsv">CSVを書き出し</button>
       </div>
-    </section>
+      </div>
+    </details>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
     const yen = new Intl.NumberFormat("ja-JP", { style: "currency", currency: "JPY", maximumFractionDigits: 0 });
-    const ymd = (date) => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    };
-    const ym = (date) => ymd(date).slice(0, 7);
+    const defaultCategories = ["食費", "日用品", "交通", "外食", "趣味", "その他"];
     const today = new Date();
+
     const state = {
-      currentMonth: ym(today),
-      settings: { weeklyBudget: 15000, weekStart: 1 },
-      entries: []
+      settings: { weeklyBudget: 15000, weekStart: 1, resetDay: 10 },
+      entries: [],
+      schedules: [],
+      periodStart: null
     };
 
     const els = {
-      monthLabel: document.querySelector("#monthLabel"),
-      monthSelect: document.querySelector("#monthSelect"),
+      periodLabel: document.querySelector("#periodLabel"),
+      periodSelect: document.querySelector("#periodSelect"),
       remaining: document.querySelector("#remaining"),
       weekPill: document.querySelector("#weekPill"),
       meter: document.querySelector("#meter"),
       weekSpent: document.querySelector("#weekSpent"),
       dailySafe: document.querySelector("#dailySafe"),
-      monthSpent: document.querySelector("#monthSpent"),
+      periodSpent: document.querySelector("#periodSpent"),
+      periodRemaining: document.querySelector("#periodRemaining"),
+      periodPlanned: document.querySelector("#periodPlanned"),
       entryForm: document.querySelector("#entryForm"),
       editingId: document.querySelector("#editingId"),
       amount: document.querySelector("#amount"),
@@ -650,72 +530,169 @@
       todayButton: document.querySelector("#todayButton"),
       weekList: document.querySelector("#weekList"),
       history: document.querySelector("#history"),
-      clearMonth: document.querySelector("#clearMonth"),
+      clearPeriod: document.querySelector("#clearPeriod"),
       weeklyBudget: document.querySelector("#weeklyBudget"),
+      resetDay: document.querySelector("#resetDay"),
       weekStart: document.querySelector("#weekStart"),
       saveSettings: document.querySelector("#saveSettings"),
-      exportCsv: document.querySelector("#exportCsv"),
+      categoryForm: document.querySelector("#categoryForm"),
+      newCategory: document.querySelector("#newCategory"),
+      categoryList: document.querySelector("#categoryList"),
+      scheduleForm: document.querySelector("#scheduleForm"),
+      scheduleEditor: document.querySelector("#scheduleEditor"),
+      scheduleEditingId: document.querySelector("#scheduleEditingId"),
+      scheduleName: document.querySelector("#scheduleName"),
+      scheduleAmount: document.querySelector("#scheduleAmount"),
+      scheduleCategory: document.querySelector("#scheduleCategory"),
+      scheduleDay: document.querySelector("#scheduleDay"),
+      scheduleDate: document.querySelector("#scheduleDate"),
+      scheduleDayField: document.querySelector("#scheduleDayField"),
+      scheduleDateField: document.querySelector("#scheduleDateField"),
+      scheduleSubmit: document.querySelector("#scheduleSubmit"),
+      scheduleList: document.querySelector("#scheduleList"),
       toast: document.querySelector("#toast")
     };
+
+    const ymd = (date) => {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    };
+
+    const parseYmd = (value) => {
+      const [y, m, d] = value.split("-").map(Number);
+      return new Date(y, m - 1, d);
+    };
+
+    const addDays = (date, days) => {
+      const next = new Date(date);
+      next.setDate(next.getDate() + days);
+      return next;
+    };
+
+    const addMonths = (date, months) => new Date(date.getFullYear(), date.getMonth() + months, date.getDate());
+
+    const parseAmount = (value) => Number(String(value).replace(/[^\d]/g, "") || 0);
 
     function load() {
       const settings = JSON.parse(localStorage.getItem("kakeibo-settings") || "null");
       if (settings) state.settings = { ...state.settings, ...settings };
-      state.currentMonth = localStorage.getItem("kakeibo-last-month") || ym(today);
-      if (state.currentMonth !== ym(today)) state.currentMonth = ym(today);
-      state.entries = getMonthEntries(state.currentMonth);
+      state.settings.resetDay = clampResetDay(state.settings.resetDay || 10);
+      migrateOldEntries();
+      state.entries = getAllEntries();
+      state.schedules = JSON.parse(localStorage.getItem("kakeibo-schedules") || "[]");
+      state.periodStart = localStorage.getItem("kakeibo-last-period") || ymd(getPeriod(today).start);
       els.date.value = ymd(today);
+      els.scheduleDate.value = ymd(today);
       els.weeklyBudget.value = state.settings.weeklyBudget;
+      els.resetDay.value = state.settings.resetDay;
       els.weekStart.value = String(state.settings.weekStart);
-      localStorage.setItem("kakeibo-last-month", state.currentMonth);
-      renderMonthOptions();
+      renderCategories();
+      renderPeriodOptions();
       render();
+      els.scheduleEditor.open = state.schedules.length === 0;
     }
 
-    function monthKey(month) {
-      return `kakeibo-entries-${month}`;
+    function clampResetDay(value) {
+      return Math.min(28, Math.max(1, Number(value) || 10));
     }
 
-    function getMonthEntries(month) {
-      return JSON.parse(localStorage.getItem(monthKey(month)) || "[]");
+    function getAllEntries() {
+      return JSON.parse(localStorage.getItem("kakeibo-all-entries") || "[]");
     }
 
-    function saveMonthEntries() {
-      localStorage.setItem(monthKey(state.currentMonth), JSON.stringify(state.entries));
+    function saveAllEntries() {
+      localStorage.setItem("kakeibo-all-entries", JSON.stringify(state.entries));
     }
 
-    function parseAmount(value) {
-      const normalized = String(value).replace(/[^\d]/g, "");
-      return Number(normalized || 0);
+    function saveSchedules() {
+      localStorage.setItem("kakeibo-schedules", JSON.stringify(state.schedules));
     }
 
-    function monthDate(month, day) {
-      const [year, monthIndex] = month.split("-").map(Number);
-      return new Date(year, monthIndex - 1, day);
+    function migrateOldEntries() {
+      if (localStorage.getItem("kakeibo-migrated-v2")) return;
+      const merged = getAllEntries();
+      const seen = new Set(merged.map((entry) => entry.id));
+      Object.keys(localStorage).forEach((key) => {
+        if (!key.startsWith("kakeibo-entries-")) return;
+        try {
+          JSON.parse(localStorage.getItem(key) || "[]").forEach((entry) => {
+            const id = entry.id || crypto.randomUUID();
+            if (seen.has(id)) return;
+            seen.add(id);
+            merged.push({ ...entry, id });
+          });
+        } catch (_) {}
+      });
+      localStorage.setItem("kakeibo-all-entries", JSON.stringify(merged));
+      localStorage.setItem("kakeibo-migrated-v2", "1");
     }
 
-    function getWeeks(month) {
-      const [year, monthNumber] = month.split("-").map(Number);
-      const first = new Date(year, monthNumber - 1, 1);
-      const last = new Date(year, monthNumber, 0);
+    function getCategories() {
+      return JSON.parse(localStorage.getItem("kakeibo-categories") || JSON.stringify(defaultCategories));
+    }
+
+    function saveCategories(categories) {
+      localStorage.setItem("kakeibo-categories", JSON.stringify(categories));
+    }
+
+    function getPeriod(date) {
+      const resetDay = clampResetDay(state.settings.resetDay);
+      let start = new Date(date.getFullYear(), date.getMonth(), resetDay);
+      if (date < start) start = addMonths(start, -1);
+      const end = addDays(addMonths(start, 1), -1);
+      return { start, end };
+    }
+
+    function getPeriodByStart(startString) {
+      const start = parseYmd(startString);
+      return { start, end: addDays(addMonths(start, 1), -1) };
+    }
+
+    function getPeriodEntries(period) {
+      return state.entries.filter((entry) => {
+        const date = parseYmd(entry.date);
+        return date >= period.start && date <= period.end;
+      });
+    }
+
+    function scheduleDateInPeriod(schedule, period) {
+      if (schedule.type === "once") {
+        const date = parseYmd(schedule.date);
+        return date >= period.start && date <= period.end ? schedule.date : null;
+      }
+      const candidates = [
+        new Date(period.start.getFullYear(), period.start.getMonth(), Math.min(28, schedule.day)),
+        new Date(period.end.getFullYear(), period.end.getMonth(), Math.min(28, schedule.day))
+      ];
+      const match = candidates.find((date) => date >= period.start && date <= period.end);
+      return match ? ymd(match) : null;
+    }
+
+    function getScheduleOccurrences(period) {
+      const periodKey = ymd(period.start);
+      return state.schedules.flatMap((schedule) => {
+        const date = scheduleDateInPeriod(schedule, period);
+        if (!date || schedule.skipped?.includes(periodKey)) return [];
+        const amount = Number(schedule.overrides?.[periodKey] ?? schedule.amount);
+        return [{ ...schedule, date, amount, periodKey }];
+      });
+    }
+
+    function getWeeks(period) {
       const weeks = [];
-      let start = new Date(first);
+      let start = new Date(period.start);
       const weekStart = Number(state.settings.weekStart);
-      while (start <= last) {
+      while (start <= period.end) {
         const end = new Date(start);
-        const daysUntilEnd = (6 - ((end.getDay() - weekStart + 7) % 7));
+        const daysUntilEnd = 6 - ((end.getDay() - weekStart + 7) % 7);
         end.setDate(end.getDate() + daysUntilEnd);
-        if (end > last) end.setTime(last.getTime());
+        if (end > period.end) end.setTime(period.end.getTime());
         weeks.push({ start: new Date(start), end: new Date(end) });
-        start = new Date(end);
-        start.setDate(start.getDate() + 1);
+        start = addDays(end, 1);
       }
       return weeks;
-    }
-
-    function getWeekForDate(dateString) {
-      const date = new Date(`${dateString}T00:00:00`);
-      return getWeeks(state.currentMonth).find((week) => date >= week.start && date <= week.end);
     }
 
     function sumEntries(entries) {
@@ -723,138 +700,196 @@
     }
 
     function entriesForWeek(week) {
-      return state.entries.filter((entry) => {
-        const date = new Date(`${entry.date}T00:00:00`);
+      const actual = state.entries.filter((entry) => {
+        const date = parseYmd(entry.date);
         return date >= week.start && date <= week.end;
       });
+      const planned = getScheduleOccurrences(currentPeriod()).filter((entry) => {
+        const date = parseYmd(entry.date);
+        return date >= week.start && date <= week.end;
+      });
+      return [...actual, ...planned];
     }
 
-    function currentWeek() {
-      const weeks = getWeeks(state.currentMonth);
-      const now = state.currentMonth === ym(today) ? today : monthDate(state.currentMonth, 1);
+    function currentPeriod() {
+      return getPeriodByStart(state.periodStart);
+    }
+
+    function currentWeek(period) {
+      const weeks = getWeeks(period);
+      const now = ymd(today) >= ymd(period.start) && ymd(today) <= ymd(period.end) ? today : period.start;
       return weeks.find((week) => now >= week.start && now <= week.end) || weeks[0];
     }
 
     function daysLeftInWeek(week) {
-      const base = state.currentMonth === ym(today) ? today : week.start;
+      const base = ymd(today) >= ymd(week.start) && ymd(today) <= ymd(week.end) ? today : week.start;
       const start = new Date(base.getFullYear(), base.getMonth(), base.getDate());
-      const diff = Math.floor((week.end - start) / 86400000) + 1;
-      return Math.max(1, diff);
+      return Math.max(1, Math.floor((week.end - start) / 86400000) + 1);
     }
 
-    function formatDateRange(week) {
-      return `${week.start.getMonth() + 1}/${week.start.getDate()} - ${week.end.getMonth() + 1}/${week.end.getDate()}`;
+    function formatDate(date) {
+      return `${date.getMonth() + 1}/${date.getDate()}`;
     }
 
-    function renderMonthOptions() {
-      const months = new Set([ym(today)]);
-      Object.keys(localStorage).forEach((key) => {
-        if (key.startsWith("kakeibo-entries-")) months.add(key.replace("kakeibo-entries-", ""));
-      });
-      els.monthSelect.innerHTML = "";
-      [...months].sort().reverse().forEach((month) => {
+    function formatRange(period) {
+      return `${formatDate(period.start)} - ${formatDate(period.end)}`;
+    }
+
+    function renderPeriodOptions() {
+      const starts = new Set([ymd(getPeriod(today).start), state.periodStart]);
+      for (let offset = -3; offset <= 12; offset += 1) {
+        starts.add(ymd(addMonths(getPeriod(today).start, offset)));
+      }
+      state.entries.forEach((entry) => starts.add(ymd(getPeriod(parseYmd(entry.date)).start)));
+      state.schedules.filter((item) => item.type === "once").forEach((item) => starts.add(ymd(getPeriod(parseYmd(item.date)).start)));
+      els.periodSelect.innerHTML = "";
+      [...starts].sort().reverse().forEach((start) => {
+        const period = getPeriodByStart(start);
         const option = document.createElement("option");
-        option.value = month;
-        option.textContent = month.replace("-", "年") + "月";
-        els.monthSelect.append(option);
+        option.value = start;
+        option.textContent = formatRange(period);
+        els.periodSelect.append(option);
       });
-      els.monthSelect.value = state.currentMonth;
+      els.periodSelect.value = state.periodStart;
+    }
+
+    function renderCategories(selected = els.category.value || "食費") {
+      const categories = getCategories();
+      els.category.innerHTML = "";
+      els.scheduleCategory.innerHTML = "";
+      categories.forEach((category) => {
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = category;
+        els.category.append(option);
+        els.scheduleCategory.append(option.cloneNode(true));
+      });
+      els.category.value = categories.includes(selected) ? selected : categories[0];
+      els.categoryList.innerHTML = "";
+      categories.forEach((category) => {
+        const item = document.createElement("div");
+        item.className = "category-chip";
+        item.innerHTML = `<strong>${escapeHtml(category)}</strong><button class="icon-button danger" type="button" data-category-delete="${escapeHtml(category)}" aria-label="削除">×</button>`;
+        els.categoryList.append(item);
+      });
     }
 
     function render() {
-      const week = currentWeek();
+      const period = currentPeriod();
+      const weeks = getWeeks(period);
+      const week = currentWeek(period);
       const weekSpent = sumEntries(entriesForWeek(week));
-      const monthSpent = sumEntries(state.entries);
-      const remaining = state.settings.weeklyBudget - weekSpent;
+      const periodEntries = getPeriodEntries(period);
+      const occurrences = getScheduleOccurrences(period);
+      const plannedSpent = sumEntries(occurrences);
+      const periodSpent = sumEntries(periodEntries) + plannedSpent;
+      const periodBudget = state.settings.weeklyBudget * weeks.length;
+      const weekRemaining = state.settings.weeklyBudget - weekSpent;
+      const periodRemaining = periodBudget - periodSpent;
       const usedPercent = state.settings.weeklyBudget > 0 ? Math.min(100, (weekSpent / state.settings.weeklyBudget) * 100) : 0;
 
-      els.monthLabel.textContent = `${state.currentMonth.replace("-", "年")}月の支出`;
-      els.remaining.textContent = yen.format(remaining);
-      els.remaining.classList.toggle("negative", remaining < 0);
-      els.weekPill.textContent = formatDateRange(week);
+      els.periodLabel.textContent = `${formatRange(period)} の支出`;
+      els.remaining.textContent = yen.format(weekRemaining);
+      els.remaining.classList.toggle("negative", weekRemaining < 0);
+      els.weekPill.textContent = formatRange(week);
       els.meter.style.width = `${usedPercent}%`;
       els.weekSpent.textContent = yen.format(weekSpent);
-      els.dailySafe.textContent = yen.format(Math.floor(Math.max(0, remaining) / daysLeftInWeek(week)));
-      els.monthSpent.textContent = yen.format(monthSpent);
+      els.dailySafe.textContent = yen.format(Math.floor(Math.max(0, weekRemaining) / daysLeftInWeek(week)));
+      els.periodSpent.textContent = yen.format(periodSpent);
+      els.periodRemaining.textContent = yen.format(periodRemaining);
+      els.periodPlanned.textContent = yen.format(plannedSpent);
+      els.periodRemaining.classList.toggle("negative", periodRemaining < 0);
       els.weeklyBudget.value = state.settings.weeklyBudget;
+      els.resetDay.value = state.settings.resetDay;
       els.weekStart.value = String(state.settings.weekStart);
 
-      renderWeeks();
-      renderHistory();
+      renderWeeks(period, week);
+      renderHistory(periodEntries);
+      renderSchedules(occurrences);
     }
 
-    function renderWeeks() {
-      const selectedWeek = currentWeek();
+    function renderSchedules(occurrences) {
+      els.scheduleList.innerHTML = "";
+      if (!state.schedules.length) {
+        els.scheduleList.innerHTML = '<div class="empty">毎月の固定費や、先の支出を登録できます</div>';
+        return;
+      }
+      const occurrenceMap = new Map(occurrences.map((item) => [item.id, item]));
+      state.schedules.forEach((schedule) => {
+        const occurrence = occurrenceMap.get(schedule.id);
+        const row = document.createElement("div");
+        row.className = "row";
+        const timing = schedule.type === "monthly" ? `毎月${schedule.day}日` : schedule.date;
+        const amount = occurrence?.amount ?? schedule.amount;
+        row.innerHTML = `<div><div class="row-name">${escapeHtml(schedule.name)}</div><div class="row-sub">${timing} · ${escapeHtml(schedule.category)}</div></div><div class="schedule-amount"><strong class="${occurrence ? "planned" : ""}">${yen.format(amount)}</strong><div class="schedule-actions">${occurrence ? `<button class="icon-button" type="button" data-override="${schedule.id}" aria-label="この期間の金額を変更">¥</button><button class="icon-button" type="button" data-paid="${schedule.id}" aria-label="支払済みにする">✓</button>` : ""}<button class="icon-button" type="button" data-schedule-edit="${schedule.id}" aria-label="編集">✎</button><button class="icon-button danger" type="button" data-schedule-delete="${schedule.id}" aria-label="削除">×</button></div></div>`;
+        els.scheduleList.append(row);
+      });
+    }
+
+    function renderWeeks(period, selectedWeek) {
       els.weekList.innerHTML = "";
-      getWeeks(state.currentMonth).forEach((week, index) => {
+      getWeeks(period).forEach((week, index) => {
         const spent = sumEntries(entriesForWeek(week));
         const remaining = state.settings.weeklyBudget - spent;
         const row = document.createElement("div");
-        row.className = "week-row";
-        if (week.start.getTime() === selectedWeek.start.getTime()) row.classList.add("current");
-        row.innerHTML = `
-          <div>
-            <div class="week-name">第${index + 1}週</div>
-            <div class="week-range">${formatDateRange(week)}</div>
-          </div>
-          <div class="week-money">
-            ${yen.format(remaining)}
-            <small>支出 ${yen.format(spent)}</small>
-          </div>
-        `;
+        row.className = "row";
+        if (ymd(week.start) === ymd(selectedWeek.start)) row.classList.add("current");
+        row.innerHTML = `<div><div class="row-name">第${index + 1}週</div><div class="row-sub">${formatRange(week)}</div></div><div class="row-money">${yen.format(remaining)}<div class="row-sub">支出 ${yen.format(spent)}</div></div>`;
         els.weekList.append(row);
       });
     }
 
-    function renderHistory() {
+    function renderHistory(entries) {
       els.history.innerHTML = "";
-      if (!state.entries.length) {
+      if (!entries.length) {
         const empty = document.createElement("div");
         empty.className = "empty";
         empty.textContent = "まだ記録がありません";
         els.history.append(empty);
         return;
       }
-
-      [...state.entries].sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt).forEach((entry) => {
+      [...entries].sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt).forEach((entry) => {
         const item = document.createElement("div");
         item.className = "entry";
-        item.innerHTML = `
-          <div class="entry-main">
-            <div class="entry-title">
-              <strong>${escapeHtml(entry.category)}</strong>
-              <span class="entry-date">${entry.date}</span>
-            </div>
-            <div class="entry-note">${escapeHtml(entry.note || "メモなし")}</div>
-          </div>
-          <div>
-            <div class="entry-amount">${yen.format(entry.amount)}</div>
-            <div class="entry-actions">
-              <button class="icon-button" type="button" data-edit="${entry.id}" aria-label="編集">✎</button>
-              <button class="icon-button danger" type="button" data-delete="${entry.id}" aria-label="削除">×</button>
-            </div>
-          </div>
-        `;
+        item.innerHTML = `<div><div class="entry-title"><strong>${escapeHtml(entry.category)}</strong><span class="entry-date">${entry.date}</span></div><div class="entry-note">${escapeHtml(entry.note || "メモなし")}</div></div><div><div class="entry-amount">${yen.format(entry.amount)}</div><div class="entry-actions"><button class="icon-button" type="button" data-edit="${entry.id}" aria-label="編集">✎</button><button class="icon-button danger" type="button" data-delete="${entry.id}" aria-label="削除">×</button></div></div>`;
         els.history.append(item);
       });
     }
 
     function escapeHtml(value) {
-      return String(value).replace(/[&<>"']/g, (char) => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        "\"": "&quot;",
-        "'": "&#39;"
-      }[char]));
+      return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[char]));
     }
 
     function resetForm() {
       els.editingId.value = "";
       els.amount.value = "";
       els.note.value = "";
-      els.category.value = "食費";
+      const categories = getCategories();
+      els.category.value = categories.includes("食費") ? "食費" : categories[0];
       els.submitButton.textContent = "追加する";
+    }
+
+    function selectedScheduleType() {
+      return document.querySelector('input[name="scheduleType"]:checked').value;
+    }
+
+    function syncScheduleType() {
+      const isMonthly = selectedScheduleType() === "monthly";
+      els.scheduleDayField.hidden = !isMonthly;
+      els.scheduleDateField.hidden = isMonthly;
+      els.scheduleDay.required = isMonthly;
+      els.scheduleDate.required = !isMonthly;
+    }
+
+    function resetScheduleForm() {
+      els.scheduleEditingId.value = "";
+      els.scheduleName.value = "";
+      els.scheduleAmount.value = "";
+      els.scheduleDay.value = "10";
+      els.scheduleDate.value = ymd(today);
+      document.querySelector('input[name="scheduleType"][value="monthly"]').checked = true;
+      els.scheduleSubmit.textContent = "予定を追加";
+      syncScheduleType();
     }
 
     function showToast(message) {
@@ -867,17 +902,7 @@
     els.entryForm.addEventListener("submit", (event) => {
       event.preventDefault();
       const amount = parseAmount(els.amount.value);
-      if (!amount) {
-        showToast("金額を入力してください");
-        return;
-      }
-      const entryMonth = els.date.value.slice(0, 7);
-      if (entryMonth !== state.currentMonth) {
-        state.currentMonth = entryMonth;
-        state.entries = getMonthEntries(state.currentMonth);
-        renderMonthOptions();
-      }
-
+      if (!amount) return showToast("金額を入力してください");
       const editingId = els.editingId.value;
       const entry = {
         id: editingId || crypto.randomUUID(),
@@ -887,7 +912,6 @@
         note: els.note.value.trim(),
         createdAt: editingId ? Number(state.entries.find((item) => item.id === editingId)?.createdAt || Date.now()) : Date.now()
       };
-
       if (editingId) {
         state.entries = state.entries.map((item) => item.id === editingId ? entry : item);
         showToast("更新しました");
@@ -895,12 +919,96 @@
         state.entries.push(entry);
         showToast("追加しました");
       }
-
-      saveMonthEntries();
-      localStorage.setItem("kakeibo-last-month", state.currentMonth);
+      state.periodStart = ymd(getPeriod(parseYmd(entry.date)).start);
+      localStorage.setItem("kakeibo-last-period", state.periodStart);
+      saveAllEntries();
       resetForm();
-      renderMonthOptions();
+      renderPeriodOptions();
       render();
+    });
+
+    document.querySelectorAll('input[name="scheduleType"]').forEach((input) => input.addEventListener("change", syncScheduleType));
+
+    els.scheduleForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const amount = parseAmount(els.scheduleAmount.value);
+      if (!amount) return showToast("金額を入力してください");
+      const type = selectedScheduleType();
+      const editingId = els.scheduleEditingId.value;
+      const previous = state.schedules.find((item) => item.id === editingId);
+      const schedule = {
+        id: editingId || crypto.randomUUID(),
+        type,
+        name: els.scheduleName.value.trim(),
+        amount,
+        category: els.scheduleCategory.value,
+        day: type === "monthly" ? Math.min(28, Math.max(1, Number(els.scheduleDay.value) || 10)) : null,
+        date: type === "once" ? els.scheduleDate.value : null,
+        overrides: previous?.overrides || {},
+        skipped: previous?.skipped || []
+      };
+      state.schedules = editingId ? state.schedules.map((item) => item.id === editingId ? schedule : item) : [...state.schedules, schedule];
+      saveSchedules();
+      renderPeriodOptions();
+      render();
+      resetScheduleForm();
+      els.scheduleEditor.open = false;
+      showToast(editingId ? "予定を更新しました" : "予定を追加しました");
+    });
+
+    els.scheduleList.addEventListener("click", (event) => {
+      const editId = event.target.closest("[data-schedule-edit]")?.dataset.scheduleEdit;
+      const deleteId = event.target.closest("[data-schedule-delete]")?.dataset.scheduleDelete;
+      const overrideId = event.target.closest("[data-override]")?.dataset.override;
+      const paidId = event.target.closest("[data-paid]")?.dataset.paid;
+      if (editId) {
+        const schedule = state.schedules.find((item) => item.id === editId);
+        if (!schedule) return;
+        els.scheduleEditingId.value = schedule.id;
+        els.scheduleName.value = schedule.name;
+        els.scheduleAmount.value = schedule.amount;
+        els.scheduleCategory.value = schedule.category;
+        els.scheduleDay.value = schedule.day || 10;
+        els.scheduleDate.value = schedule.date || ymd(today);
+        document.querySelector(`input[name="scheduleType"][value="${schedule.type}"]`).checked = true;
+        els.scheduleSubmit.textContent = "予定を更新";
+        syncScheduleType();
+        els.scheduleEditor.open = true;
+        els.scheduleName.focus();
+      }
+      if (deleteId) {
+        const schedule = state.schedules.find((item) => item.id === deleteId);
+        if (!schedule || !confirm(`「${schedule.name}」を削除しますか？`)) return;
+        state.schedules = state.schedules.filter((item) => item.id !== deleteId);
+        saveSchedules();
+        renderPeriodOptions();
+        render();
+        showToast("予定を削除しました");
+      }
+      if (overrideId) {
+        const schedule = state.schedules.find((item) => item.id === overrideId);
+        const occurrence = getScheduleOccurrences(currentPeriod()).find((item) => item.id === overrideId);
+        if (!schedule || !occurrence) return;
+        const value = prompt(`${formatRange(currentPeriod())} だけの金額`, occurrence.amount);
+        if (value === null) return;
+        const amount = parseAmount(value);
+        if (!amount) return showToast("金額を入力してください");
+        schedule.overrides = { ...(schedule.overrides || {}), [ymd(currentPeriod().start)]: amount };
+        saveSchedules();
+        render();
+        showToast("この期間の金額を変更しました");
+      }
+      if (paidId) {
+        const schedule = state.schedules.find((item) => item.id === paidId);
+        const occurrence = getScheduleOccurrences(currentPeriod()).find((item) => item.id === paidId);
+        if (!schedule || !occurrence) return;
+        state.entries.push({ id: crypto.randomUUID(), amount: occurrence.amount, date: occurrence.date, category: occurrence.category, note: schedule.name, createdAt: Date.now() });
+        schedule.skipped = [...(schedule.skipped || []), occurrence.periodKey];
+        saveAllEntries();
+        saveSchedules();
+        render();
+        showToast("支払済みとして履歴へ移しました");
+      }
     });
 
     els.history.addEventListener("click", (event) => {
@@ -919,7 +1027,8 @@
       }
       if (deleteId) {
         state.entries = state.entries.filter((item) => item.id !== deleteId);
-        saveMonthEntries();
+        saveAllEntries();
+        renderPeriodOptions();
         render();
         showToast("削除しました");
       }
@@ -930,51 +1039,61 @@
     });
 
     els.saveSettings.addEventListener("click", () => {
-      const weeklyBudget = parseAmount(els.weeklyBudget.value);
       state.settings = {
-        weeklyBudget: weeklyBudget || 15000,
-        weekStart: Number(els.weekStart.value)
+        weeklyBudget: parseAmount(els.weeklyBudget.value) || 15000,
+        weekStart: Number(els.weekStart.value),
+        resetDay: clampResetDay(els.resetDay.value)
       };
       localStorage.setItem("kakeibo-settings", JSON.stringify(state.settings));
+      state.periodStart = ymd(getPeriod(today).start);
+      localStorage.setItem("kakeibo-last-period", state.periodStart);
+      renderPeriodOptions();
       render();
       showToast("設定を保存しました");
     });
 
     els.weekStart.addEventListener("change", () => els.saveSettings.click());
+    els.resetDay.addEventListener("change", () => els.saveSettings.click());
 
-    els.monthSelect.addEventListener("change", () => {
-      state.currentMonth = els.monthSelect.value;
-      state.entries = getMonthEntries(state.currentMonth);
-      localStorage.setItem("kakeibo-last-month", state.currentMonth);
+    els.periodSelect.addEventListener("change", () => {
+      state.periodStart = els.periodSelect.value;
+      localStorage.setItem("kakeibo-last-period", state.periodStart);
       render();
     });
 
-    els.clearMonth.addEventListener("click", () => {
-      if (!state.entries.length) return;
-      if (!confirm(`${state.currentMonth} の記録をすべて削除しますか？`)) return;
-      state.entries = [];
-      saveMonthEntries();
+    els.categoryForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const category = els.newCategory.value.trim();
+      if (!category) return showToast("カテゴリ名を入力してください");
+      const categories = getCategories();
+      if (categories.includes(category)) return showToast("同じカテゴリがあります");
+      categories.push(category);
+      saveCategories(categories);
+      renderCategories(category);
+      els.newCategory.value = "";
+      showToast("カテゴリを追加しました");
+    });
+
+    els.categoryList.addEventListener("click", (event) => {
+      const category = event.target.closest("[data-category-delete]")?.dataset.categoryDelete;
+      if (!category) return;
+      if (defaultCategories.includes(category)) return showToast("標準カテゴリは残しています");
+      saveCategories(getCategories().filter((item) => item !== category));
+      renderCategories();
+      showToast("カテゴリを削除しました");
+    });
+
+    els.clearPeriod.addEventListener("click", () => {
+      const period = currentPeriod();
+      const ids = new Set(getPeriodEntries(period).map((entry) => entry.id));
+      if (!ids.size) return;
+      if (!confirm(`${formatRange(period)} の記録をすべて削除しますか？`)) return;
+      state.entries = state.entries.filter((entry) => !ids.has(entry.id));
+      saveAllEntries();
+      renderPeriodOptions();
       render();
-      showToast("今月の記録を空にしました");
+      showToast("期間内の記録を空にしました");
     });
-
-    els.exportCsv.addEventListener("click", () => {
-      const header = ["date", "category", "amount", "note"];
-      const rows = state.entries
-        .sort((a, b) => a.date.localeCompare(b.date))
-        .map((entry) => [entry.date, entry.category, entry.amount, entry.note]);
-      const csv = [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
-      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `kakeibo-${state.currentMonth}.csv`;
-      link.click();
-      URL.revokeObjectURL(link.href);
-    });
-
-    function csvCell(value) {
-      return `"${String(value ?? "").replace(/"/g, '""')}"`;
-    }
 
     load();
 
