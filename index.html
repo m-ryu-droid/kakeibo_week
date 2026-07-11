@@ -5,25 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="週予算家計簿">
-  <meta name="theme-color" content="#edf4ef">
+  <meta name="apple-mobile-web-app-title" content="わたしの家計簿">
+  <meta name="theme-color" content="#f5faf7">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icon.svg">
-  <title>週予算家計簿</title>
+  <title>わたしの家計簿</title>
   <style>
     :root {
       color-scheme: light;
-      --paper: #edf4ef;
-      --surface: rgba(255, 255, 255, .62);
-      --ink: #20272c;
-      --muted: #65717a;
-      --line: rgba(120, 143, 136, .28);
-      --green: #16806a;
-      --blue: #315f9f;
-      --red: #b04437;
-      --terracotta: #be684f;
-      --shadow: 0 18px 42px rgba(44, 63, 67, .13);
+      --paper: #f5faf7;
+      --surface: rgba(255, 255, 255, .72);
+      --ink: #34343b;
+      --muted: #74747d;
+      --line: rgba(116, 137, 128, .22);
+      --green: #2c927c;
+      --blue: #5686b7;
+      --pink: #df7893;
+      --yellow: #e4ad45;
+      --red: #ba4f59;
+      --terracotta: #cf775d;
+      --shadow: 0 16px 36px rgba(67, 87, 79, .11);
     }
 
     * { box-sizing: border-box; }
@@ -33,9 +35,9 @@
       min-height: 100%;
       margin: 0;
       background:
-        linear-gradient(120deg, rgba(255,255,255,.66), rgba(255,248,231,.52) 34%, rgba(221,239,232,.64)),
-        repeating-linear-gradient(90deg, rgba(32,39,44,.035) 0 1px, transparent 1px 24px),
-        repeating-linear-gradient(0deg, rgba(32,39,44,.026) 0 1px, transparent 1px 24px),
+        linear-gradient(120deg, rgba(255,255,255,.76), rgba(255,241,245,.58) 36%, rgba(227,245,239,.72)),
+        repeating-linear-gradient(90deg, rgba(223,120,147,.035) 0 1px, transparent 1px 22px),
+        repeating-linear-gradient(0deg, rgba(44,146,124,.03) 0 1px, transparent 1px 22px),
         var(--paper);
       color: var(--ink);
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
@@ -49,8 +51,8 @@
       z-index: -1;
       background:
         linear-gradient(180deg, rgba(255,255,255,.4), transparent 42%),
-        linear-gradient(135deg, rgba(22,128,106,.12), transparent 38%),
-        linear-gradient(315deg, rgba(190,104,79,.12), transparent 36%);
+        linear-gradient(135deg, rgba(44,146,124,.12), transparent 38%),
+        linear-gradient(315deg, rgba(223,120,147,.13), transparent 36%);
       pointer-events: none;
     }
 
@@ -77,6 +79,8 @@
       line-height: 1.16;
       letter-spacing: 0;
     }
+
+    .eyebrow { margin-bottom: 4px; color: var(--pink); font-size: 11px; font-weight: 900; }
 
     h2 {
       margin: 0;
@@ -132,8 +136,8 @@
       gap: 12px;
       padding: 18px;
       background:
-        linear-gradient(135deg, rgba(255,255,255,.78), rgba(238,249,245,.52)),
-        linear-gradient(160deg, rgba(49,95,159,.11), rgba(190,104,79,.08));
+        linear-gradient(135deg, rgba(255,255,255,.84), rgba(239,250,246,.62)),
+        linear-gradient(160deg, rgba(86,134,183,.10), rgba(223,120,147,.10));
     }
 
     .hero-top {
@@ -234,6 +238,18 @@
     }
 
     .summary-note { display:flex; justify-content:space-between; gap:10px; padding:10px 12px; border-left:3px solid var(--terracotta); background:rgba(255,248,238,.62); color:var(--muted); font-size:12px; }
+    .phone-card { position:relative; overflow:hidden; background:linear-gradient(135deg, rgba(255,248,251,.88), rgba(241,250,247,.82)); }
+    .phone-card::after { content:""; position:absolute; width:76px; height:76px; right:-24px; top:-30px; border:12px solid rgba(223,120,147,.10); border-radius:50%; pointer-events:none; }
+    .phone-total { font-size:27px; line-height:1; color:var(--pink); }
+    .mini-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
+    .mini-stat { padding:10px; border-radius:8px; background:rgba(255,255,255,.62); }
+    .mini-stat strong { display:block; margin-top:3px; }
+    .category-bars { display:grid; gap:12px; }
+    .category-line { display:grid; grid-template-columns:minmax(76px, 1fr) 2fr auto; align-items:center; gap:8px; font-size:13px; }
+    .category-track { height:8px; overflow:hidden; border-radius:999px; background:rgba(116,137,128,.12); }
+    .category-track span { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg, var(--green), var(--pink)); }
+    .category-money { min-width:72px; text-align:right; font-weight:800; }
+    .backup-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .segmented { display:grid; grid-template-columns:1fr 1fr; gap:4px; padding:4px; border-radius:8px; background:rgba(255,255,255,.48); }
     .segmented label { position:relative; }
     .segmented input { position:absolute; opacity:0; pointer-events:none; }
@@ -275,7 +291,7 @@
 
     .primary {
       width: 100%;
-      background: linear-gradient(135deg, #16806a, #315f9f);
+      background: linear-gradient(135deg, #2c927c, #5686b7);
       color: #fff;
       box-shadow: 0 12px 22px rgba(49,95,159,.2);
     }
@@ -374,7 +390,7 @@
 
     @media (max-width: 390px) {
       .app { padding-left: 12px; padding-right: 12px; }
-      .grid-2, .stats, .footer-actions { grid-template-columns: 1fr; }
+      .grid-2, .stats, .footer-actions, .backup-actions { grid-template-columns: 1fr; }
       header { display: grid; }
       .select-small { width: 100%; }
     }
@@ -384,7 +400,8 @@
   <main class="app">
     <header>
       <div>
-        <h1>週予算家計簿</h1>
+        <div class="eyebrow">MY LITTLE BUDGET</div>
+        <h1>わたしの家計簿</h1>
         <div class="subtitle" id="periodLabel">予算期間を読み込み中</div>
       </div>
       <select class="select-small" id="periodSelect" aria-label="表示する期間"></select>
@@ -406,6 +423,17 @@
         <div class="stat"><span class="label">期間の残高</span><strong id="periodRemaining">¥0</strong></div>
       </div>
       <div class="summary-note"><span>うち今後の予定</span><strong id="periodPlanned">¥0</strong></div>
+    </section>
+
+    <section class="panel phone-card" aria-labelledby="phoneTitle">
+      <div class="section-title">
+        <div><span class="label">今期の見込み</span><h2 id="phoneTitle">スマホ料金</h2></div>
+        <strong class="phone-total" id="phoneTotal">¥0</strong>
+      </div>
+      <div class="mini-stats">
+        <div class="mini-stat"><span class="label">支払済み</span><strong id="phoneActual">¥0</strong></div>
+        <div class="mini-stat"><span class="label">これから</span><strong id="phonePlanned">¥0</strong></div>
+      </div>
     </section>
 
     <section class="panel" aria-labelledby="entryTitle">
@@ -430,6 +458,11 @@
     <section class="panel" aria-labelledby="weeksTitle">
       <div class="section-title"><h2 id="weeksTitle">週ごとの残り</h2></div>
       <div class="week-list" id="weekList"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="categorySummaryTitle">
+      <div class="section-title"><h2 id="categorySummaryTitle">カテゴリ別</h2></div>
+      <div class="category-bars" id="categorySummary"></div>
     </section>
 
     <section class="panel" aria-labelledby="scheduleTitle">
@@ -487,6 +520,15 @@
         </form>
         <div class="category-list" id="categoryList"></div>
         <div class="note">リセット日を10にすると、7/10〜8/9のように集計します。安全のため29〜31日は選べない仕様にしています。</div>
+        <div class="field">
+          <span>データのバックアップ</span>
+          <div class="backup-actions">
+            <button class="secondary" type="button" id="backupData">保存する</button>
+            <button class="secondary" type="button" id="restoreData">復元する</button>
+          </div>
+          <input id="restoreFile" type="file" accept="application/json,.json" hidden>
+          <div class="note">支出、予定、カテゴリ、予算設定をまとめて保存します。</div>
+        </div>
       </div>
       <div class="footer-actions">
         <button class="secondary" type="button" id="saveSettings">設定を保存</button>
@@ -499,7 +541,7 @@
 
   <script>
     const yen = new Intl.NumberFormat("ja-JP", { style: "currency", currency: "JPY", maximumFractionDigits: 0 });
-    const defaultCategories = ["食費", "日用品", "交通", "外食", "趣味", "その他"];
+    const defaultCategories = ["食費", "日用品", "交通", "外食", "趣味", "スマホ料金", "その他"];
     const today = new Date();
 
     const state = {
@@ -520,6 +562,10 @@
       periodSpent: document.querySelector("#periodSpent"),
       periodRemaining: document.querySelector("#periodRemaining"),
       periodPlanned: document.querySelector("#periodPlanned"),
+      phoneTotal: document.querySelector("#phoneTotal"),
+      phoneActual: document.querySelector("#phoneActual"),
+      phonePlanned: document.querySelector("#phonePlanned"),
+      categorySummary: document.querySelector("#categorySummary"),
       entryForm: document.querySelector("#entryForm"),
       editingId: document.querySelector("#editingId"),
       amount: document.querySelector("#amount"),
@@ -538,6 +584,9 @@
       categoryForm: document.querySelector("#categoryForm"),
       newCategory: document.querySelector("#newCategory"),
       categoryList: document.querySelector("#categoryList"),
+      backupData: document.querySelector("#backupData"),
+      restoreData: document.querySelector("#restoreData"),
+      restoreFile: document.querySelector("#restoreFile"),
       scheduleForm: document.querySelector("#scheduleForm"),
       scheduleEditor: document.querySelector("#scheduleEditor"),
       scheduleEditingId: document.querySelector("#scheduleEditingId"),
@@ -630,7 +679,8 @@
     }
 
     function getCategories() {
-      return JSON.parse(localStorage.getItem("kakeibo-categories") || JSON.stringify(defaultCategories));
+      const saved = JSON.parse(localStorage.getItem("kakeibo-categories") || "[]");
+      return [...new Set([...defaultCategories, ...saved])];
     }
 
     function saveCategories(categories) {
@@ -806,6 +856,35 @@
       renderWeeks(period, week);
       renderHistory(periodEntries);
       renderSchedules(occurrences);
+      renderPhoneSummary(periodEntries, occurrences);
+      renderCategorySummary(periodEntries, occurrences);
+    }
+
+    function renderPhoneSummary(entries, occurrences) {
+      const isPhone = (item) => item.category === "スマホ料金";
+      const actual = sumEntries(entries.filter(isPhone));
+      const planned = sumEntries(occurrences.filter(isPhone));
+      els.phoneActual.textContent = yen.format(actual);
+      els.phonePlanned.textContent = yen.format(planned);
+      els.phoneTotal.textContent = yen.format(actual + planned);
+    }
+
+    function renderCategorySummary(entries, occurrences) {
+      const totals = new Map();
+      [...entries, ...occurrences].forEach((item) => totals.set(item.category, (totals.get(item.category) || 0) + item.amount));
+      const sorted = [...totals.entries()].sort((a, b) => b[1] - a[1]);
+      els.categorySummary.innerHTML = "";
+      if (!sorted.length) {
+        els.categorySummary.innerHTML = '<div class="empty">支出を追加すると内訳が表示されます</div>';
+        return;
+      }
+      const max = sorted[0][1];
+      sorted.forEach(([category, amount]) => {
+        const row = document.createElement("div");
+        row.className = "category-line";
+        row.innerHTML = `<strong>${escapeHtml(category)}</strong><div class="category-track" aria-hidden="true"><span style="width:${Math.max(4, amount / max * 100)}%"></span></div><span class="category-money">${yen.format(amount)}</span>`;
+        els.categorySummary.append(row);
+      });
     }
 
     function renderSchedules(occurrences) {
@@ -1081,6 +1160,50 @@
       saveCategories(getCategories().filter((item) => item !== category));
       renderCategories();
       showToast("カテゴリを削除しました");
+    });
+
+    els.backupData.addEventListener("click", () => {
+      const backup = {
+        app: "weekly-kakeibo",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        settings: state.settings,
+        entries: state.entries,
+        schedules: state.schedules,
+        categories: getCategories(),
+        lastPeriod: state.periodStart
+      };
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `kakeibo-backup-${ymd(today)}.json`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(link.href), 0);
+      showToast("バックアップを保存しました");
+    });
+
+    els.restoreData.addEventListener("click", () => els.restoreFile.click());
+
+    els.restoreFile.addEventListener("change", async () => {
+      const file = els.restoreFile.files[0];
+      if (!file) return;
+      try {
+        const backup = JSON.parse(await file.text());
+        if (backup.app !== "weekly-kakeibo" || !Array.isArray(backup.entries) || !Array.isArray(backup.schedules) || !Array.isArray(backup.categories) || !backup.settings) {
+          throw new Error("invalid backup");
+        }
+        if (!confirm("現在のデータをバックアップ内容で置き換えますか？")) return;
+        localStorage.setItem("kakeibo-settings", JSON.stringify(backup.settings));
+        localStorage.setItem("kakeibo-all-entries", JSON.stringify(backup.entries));
+        localStorage.setItem("kakeibo-schedules", JSON.stringify(backup.schedules));
+        localStorage.setItem("kakeibo-categories", JSON.stringify(backup.categories));
+        if (backup.lastPeriod) localStorage.setItem("kakeibo-last-period", backup.lastPeriod);
+        location.reload();
+      } catch (_) {
+        showToast("このバックアップは読み込めません");
+      } finally {
+        els.restoreFile.value = "";
+      }
     });
 
     els.clearPeriod.addEventListener("click", () => {

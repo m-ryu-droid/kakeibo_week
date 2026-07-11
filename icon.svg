@@ -2,19 +2,19 @@
   <defs>
     <linearGradient id="bg" x1="88" y1="64" x2="424" y2="448" gradientUnits="userSpaceOnUse">
       <stop stop-color="#fafffb"/>
-      <stop offset=".48" stop-color="#dff3e9"/>
-      <stop offset="1" stop-color="#dbe8f8"/>
+      <stop offset=".48" stop-color="#e2f5ee"/>
+      <stop offset="1" stop-color="#fde6ed"/>
     </linearGradient>
     <linearGradient id="mark" x1="156" y1="148" x2="360" y2="374" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#16806a"/>
-      <stop offset=".7" stop-color="#315f9f"/>
-      <stop offset="1" stop-color="#be684f"/>
+      <stop stop-color="#2c927c"/>
+      <stop offset=".58" stop-color="#5686b7"/>
+      <stop offset="1" stop-color="#df7893"/>
     </linearGradient>
   </defs>
   <rect width="512" height="512" rx="112" fill="url(#bg)"/>
   <path d="M142 148h228c28 0 50 22 50 50v188H192c-28 0-50-22-50-50V148Z" fill="#fff" fill-opacity=".64"/>
   <path d="M142 148h228c28 0 50 22 50 50v188H192c-28 0-50-22-50-50V148Z" fill="none" stroke="#fff" stroke-opacity=".78" stroke-width="12"/>
-  <path d="M184 214h188M184 270h142M184 326h84" stroke="#65717a" stroke-width="22" stroke-linecap="round" opacity=".36"/>
+  <path d="M184 214h188M184 270h142M184 326h84" stroke="#74747d" stroke-width="22" stroke-linecap="round" opacity=".36"/>
   <circle cx="340" cy="326" r="52" fill="url(#mark)"/>
   <path d="M316 326l16 16 34-42" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
