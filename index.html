@@ -62,7 +62,7 @@
     .app {
       width: min(100%, 540px);
       margin: 0 auto;
-      padding: max(18px, env(safe-area-inset-top)) 16px max(28px, env(safe-area-inset-bottom));
+      padding: max(18px, env(safe-area-inset-top)) 16px max(104px, calc(env(safe-area-inset-bottom) + 88px));
     }
 
     header {
@@ -250,6 +250,42 @@
     .category-track span { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg, var(--green), var(--pink)); }
     .category-money { min-width:72px; text-align:right; font-weight:800; }
     .backup-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .tab-bar {
+      position: fixed;
+      left: 50%;
+      bottom: max(10px, env(safe-area-inset-bottom));
+      z-index: 9;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      width: min(calc(100% - 24px), 516px);
+      min-height: 66px;
+      padding: 6px;
+      border: 1px solid rgba(255,255,255,.78);
+      border-radius: 8px;
+      background: rgba(255,255,255,.82);
+      box-shadow: 0 16px 38px rgba(67,87,79,.18);
+      transform: translateX(-50%);
+      backdrop-filter: blur(20px) saturate(145%);
+      -webkit-backdrop-filter: blur(20px) saturate(145%);
+    }
+    .tab-button {
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 5px;
+      min-width: 0;
+      min-height: 52px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .tab-dot { width: 16px; height: 4px; border-radius: 999px; background: currentColor; opacity: .45; }
+    .tab-button[aria-selected="true"] { background: linear-gradient(135deg, rgba(226,245,238,.94), rgba(255,234,240,.92)); color: var(--green); }
+    .tab-button[aria-selected="true"] .tab-dot { width: 24px; opacity: 1; background: linear-gradient(90deg, var(--green), var(--pink)); }
     .segmented { display:grid; grid-template-columns:1fr 1fr; gap:4px; padding:4px; border-radius:8px; background:rgba(255,255,255,.48); }
     .segmented label { position:relative; }
     .segmented input { position:absolute; opacity:0; pointer-events:none; }
@@ -407,7 +443,7 @@
       <select class="select-small" id="periodSelect" aria-label="表示する期間"></select>
     </header>
 
-    <section class="hero" aria-label="予算状況">
+    <section class="hero" aria-label="予算状況" data-view-section="home">
       <div class="hero-top">
         <div>
           <span class="label">今週あと使える金額</span>
@@ -425,7 +461,7 @@
       <div class="summary-note"><span>うち今後の予定</span><strong id="periodPlanned">¥0</strong></div>
     </section>
 
-    <section class="panel phone-card" aria-labelledby="phoneTitle">
+    <section class="panel phone-card" aria-labelledby="phoneTitle" data-view-section="home">
       <div class="section-title">
         <div><span class="label">今期の見込み</span><h2 id="phoneTitle">スマホ料金</h2></div>
         <strong class="phone-total" id="phoneTotal">¥0</strong>
@@ -436,7 +472,7 @@
       </div>
     </section>
 
-    <section class="panel" aria-labelledby="entryTitle">
+    <section class="panel" aria-labelledby="entryTitle" data-view-section="home">
       <div class="section-title">
         <h2 id="entryTitle">支出を入力</h2>
         <button class="secondary" type="button" id="todayButton">今日</button>
@@ -455,17 +491,17 @@
       </form>
     </section>
 
-    <section class="panel" aria-labelledby="weeksTitle">
+    <section class="panel" aria-labelledby="weeksTitle" data-view-section="home">
       <div class="section-title"><h2 id="weeksTitle">週ごとの残り</h2></div>
       <div class="week-list" id="weekList"></div>
     </section>
 
-    <section class="panel" aria-labelledby="categorySummaryTitle">
+    <section class="panel" aria-labelledby="categorySummaryTitle" data-view-section="home">
       <div class="section-title"><h2 id="categorySummaryTitle">カテゴリ別</h2></div>
       <div class="category-bars" id="categorySummary"></div>
     </section>
 
-    <section class="panel" aria-labelledby="scheduleTitle">
+    <section class="panel" aria-labelledby="scheduleTitle" data-view-section="plans">
       <div class="section-title"><div><h2 id="scheduleTitle">固定費・予定</h2><div class="subtitle">先に確保して、使える残高へ反映</div></div></div>
       <div class="schedule-list" id="scheduleList"></div>
       <details class="schedule-editor" id="scheduleEditor">
@@ -490,7 +526,7 @@
       </details>
     </section>
 
-    <section class="panel" aria-labelledby="historyTitle">
+    <section class="panel" aria-labelledby="historyTitle" data-view-section="history">
       <div class="section-title">
         <h2 id="historyTitle">期間内の履歴</h2>
         <button class="secondary" type="button" id="clearPeriod">期間を空にする</button>
@@ -498,7 +534,7 @@
       <div class="history" id="history"></div>
     </section>
 
-    <details class="panel" aria-labelledby="settingsTitle">
+    <details class="panel" aria-labelledby="settingsTitle" data-view-section="settings" open>
       <summary id="settingsTitle">設定</summary>
       <div class="details-body"><div class="settings-grid">
         <div class="grid-2">
@@ -536,6 +572,13 @@
       </div>
     </details>
   </main>
+
+  <nav class="tab-bar" aria-label="画面切り替え" role="tablist">
+    <button class="tab-button" type="button" role="tab" data-view="home" aria-selected="true"><span class="tab-dot"></span><span>ホーム</span></button>
+    <button class="tab-button" type="button" role="tab" data-view="plans" aria-selected="false"><span class="tab-dot"></span><span>予定</span></button>
+    <button class="tab-button" type="button" role="tab" data-view="history" aria-selected="false"><span class="tab-dot"></span><span>履歴</span></button>
+    <button class="tab-button" type="button" role="tab" data-view="settings" aria-selected="false"><span class="tab-dot"></span><span>設定</span></button>
+  </nav>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -602,6 +645,9 @@
       toast: document.querySelector("#toast")
     };
 
+    const viewSections = [...document.querySelectorAll("[data-view-section]")];
+    const viewButtons = [...document.querySelectorAll("[data-view]")];
+
     const ymd = (date) => {
       const y = date.getFullYear();
       const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -641,6 +687,15 @@
       renderPeriodOptions();
       render();
       els.scheduleEditor.open = state.schedules.length === 0;
+      switchView(localStorage.getItem("kakeibo-active-view") || "home", false);
+    }
+
+    function switchView(view, scroll = true) {
+      if (!viewButtons.some((button) => button.dataset.view === view)) view = "home";
+      viewSections.forEach((section) => { section.hidden = section.dataset.viewSection !== view; });
+      viewButtons.forEach((button) => button.setAttribute("aria-selected", String(button.dataset.view === view)));
+      localStorage.setItem("kakeibo-active-view", view);
+      if (scroll) window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function clampResetDay(value) {
@@ -1217,6 +1272,8 @@
       render();
       showToast("期間内の記録を空にしました");
     });
+
+    viewButtons.forEach((button) => button.addEventListener("click", () => switchView(button.dataset.view)));
 
     load();
 
