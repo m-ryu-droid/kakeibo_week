@@ -283,6 +283,23 @@
       padding: 2px 1px 8px;
       scrollbar-width: none;
     }
+    .preset-area {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(235,249,244,.72), rgba(255,239,244,.64));
+    }
+    .preset-area-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 800;
+    }
     .preset-strip::-webkit-scrollbar { display: none; }
     .preset-button {
       flex: 0 0 auto;
@@ -302,6 +319,17 @@
     .preset-list { display: grid; gap: 8px; }
     .preset-form { display: grid; gap: 10px; }
     .preset-count { color: var(--muted); font-size: 11px; font-weight: 800; }
+    .preset-editor > summary {
+      padding: 5px 0 1px;
+      color: var(--green);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+      list-style: none;
+    }
+    .preset-editor > summary::-webkit-details-marker { display: none; }
+    .preset-editor > summary::before { content: "＋ "; }
+    .preset-editor[open] > summary { margin-bottom: 10px; }
     .tab-bar {
       position: fixed;
       left: 50%;
@@ -534,7 +562,28 @@
         <h2 id="entryTitle">支出を入力</h2>
         <button class="secondary" type="button" id="todayButton">今日</button>
       </div>
-      <div class="preset-strip" id="presetStrip" aria-label="よく使う支出" hidden></div>
+      <div class="preset-area">
+        <div class="preset-area-title">
+          <span>よく使う支出</span>
+          <span class="preset-count" id="presetCount">0 / 5</span>
+        </div>
+        <div class="preset-strip" id="presetStrip" aria-label="よく使う支出" hidden></div>
+        <details class="preset-editor">
+          <summary>プリセットを追加・編集</summary>
+          <form class="preset-form" id="presetForm">
+            <input type="hidden" id="presetEditingId">
+            <div class="grid-2">
+              <label class="field"><span>名前</span><input id="presetName" maxlength="16" placeholder="例: 整骨院" required></label>
+              <label class="field"><span>金額</span><input id="presetAmount" inputmode="numeric" placeholder="例: 680" required></label>
+            </div>
+            <div class="grid-2">
+              <label class="field"><span>カテゴリ</span><select id="presetCategory"></select></label>
+              <button class="secondary" type="submit" id="presetSubmit">追加する</button>
+            </div>
+          </form>
+          <div class="preset-list" id="presetList"></div>
+        </details>
+      </div>
       <form id="entryForm">
         <input type="hidden" id="editingId">
         <div class="grid-2">
@@ -614,21 +663,6 @@
         </form>
         <div class="category-list" id="categoryList"></div>
         <div class="note">リセット日を10にすると、7/10〜8/9のように集計します。安全のため29〜31日は選べない仕様にしています。</div>
-        <div class="field">
-          <span>よく使う支出 <span class="preset-count" id="presetCount">0 / 5</span></span>
-          <form class="preset-form" id="presetForm">
-            <input type="hidden" id="presetEditingId">
-            <div class="grid-2">
-              <label class="field"><span>名前</span><input id="presetName" maxlength="16" placeholder="例: 整骨院" required></label>
-              <label class="field"><span>金額</span><input id="presetAmount" inputmode="numeric" placeholder="例: 680" required></label>
-            </div>
-            <div class="grid-2">
-              <label class="field"><span>カテゴリ</span><select id="presetCategory"></select></label>
-              <button class="secondary" type="submit" id="presetSubmit">追加する</button>
-            </div>
-          </form>
-          <div class="preset-list" id="presetList"></div>
-        </div>
         <div class="field">
           <span>データのバックアップ</span>
           <div class="backup-actions">
@@ -1267,6 +1301,7 @@
       savePresets();
       renderPresets();
       resetPresetForm();
+      event.currentTarget.closest("details").open = false;
       showToast(editingId ? "プリセットを更新しました" : "プリセットを追加しました");
     });
 
