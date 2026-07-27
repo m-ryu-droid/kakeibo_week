@@ -1,4 +1,4 @@
-const CACHE_NAME = "weekly-kakeibo-v5";
+const CACHE_NAME = "weekly-kakeibo-v6";
 const APP_FILES = ["./", "./index.html", "./kakeibo.html", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", (event) => {

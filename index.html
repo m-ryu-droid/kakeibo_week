@@ -250,6 +250,32 @@
     .category-track span { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg, var(--green), var(--pink)); }
     .category-money { min-width:72px; text-align:right; font-weight:800; }
     .backup-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .preset-strip {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 1px 8px;
+      scrollbar-width: none;
+    }
+    .preset-strip::-webkit-scrollbar { display: none; }
+    .preset-button {
+      flex: 0 0 112px;
+      min-height: 58px;
+      padding: 8px 10px;
+      border: 1px solid rgba(255,255,255,.72);
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(235,249,244,.9), rgba(255,239,244,.86));
+      color: var(--ink);
+      text-align: left;
+      box-shadow: 0 7px 16px rgba(67,87,79,.07);
+      cursor: pointer;
+    }
+    .preset-button strong, .preset-button span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .preset-button strong { font-size: 13px; }
+    .preset-button span { margin-top: 3px; color: var(--pink); font-size: 12px; font-weight: 900; }
+    .preset-list { display: grid; gap: 8px; }
+    .preset-form { display: grid; gap: 10px; }
+    .preset-count { color: var(--muted); font-size: 11px; font-weight: 800; }
     .tab-bar {
       position: fixed;
       left: 50%;
@@ -446,15 +472,15 @@
     <section class="hero" aria-label="予算状況" data-view-section="home">
       <div class="hero-top">
         <div>
-          <span class="label">今週あと使える金額</span>
+          <span class="label" id="remainingLabel">今週あと使える金額</span>
           <div class="remaining" id="remaining">¥0</div>
         </div>
         <div class="pill" id="weekPill">今週</div>
       </div>
       <div class="meter" aria-hidden="true"><span id="meter"></span></div>
       <div class="stats">
-        <div class="stat"><span class="label">今週の支出</span><strong id="weekSpent">¥0</strong></div>
-        <div class="stat"><span class="label">1日あたり</span><strong id="dailySafe">¥0</strong></div>
+        <div class="stat"><span class="label" id="weekSpentLabel">今週の支出</span><strong id="weekSpent">¥0</strong></div>
+        <div class="stat"><span class="label" id="dailySafeLabel">1日あたり</span><strong id="dailySafe">¥0</strong></div>
         <div class="stat"><span class="label">期間の支出</span><strong id="periodSpent">¥0</strong></div>
         <div class="stat"><span class="label">期間の残高</span><strong id="periodRemaining">¥0</strong></div>
       </div>
@@ -477,6 +503,7 @@
         <h2 id="entryTitle">支出を入力</h2>
         <button class="secondary" type="button" id="todayButton">今日</button>
       </div>
+      <div class="preset-strip" id="presetStrip" aria-label="よく使う支出" hidden></div>
       <form id="entryForm">
         <input type="hidden" id="editingId">
         <div class="grid-2">
@@ -557,13 +584,28 @@
         <div class="category-list" id="categoryList"></div>
         <div class="note">リセット日を10にすると、7/10〜8/9のように集計します。安全のため29〜31日は選べない仕様にしています。</div>
         <div class="field">
+          <span>よく使う支出 <span class="preset-count" id="presetCount">0 / 5</span></span>
+          <form class="preset-form" id="presetForm">
+            <input type="hidden" id="presetEditingId">
+            <div class="grid-2">
+              <label class="field"><span>名前</span><input id="presetName" maxlength="16" placeholder="例: 整骨院" required></label>
+              <label class="field"><span>金額</span><input id="presetAmount" inputmode="numeric" placeholder="例: 680" required></label>
+            </div>
+            <div class="grid-2">
+              <label class="field"><span>カテゴリ</span><select id="presetCategory"></select></label>
+              <button class="secondary" type="submit" id="presetSubmit">追加する</button>
+            </div>
+          </form>
+          <div class="preset-list" id="presetList"></div>
+        </div>
+        <div class="field">
           <span>データのバックアップ</span>
           <div class="backup-actions">
             <button class="secondary" type="button" id="backupData">保存する</button>
             <button class="secondary" type="button" id="restoreData">復元する</button>
           </div>
           <input id="restoreFile" type="file" accept="application/json,.json" hidden>
-          <div class="note">支出、予定、カテゴリ、予算設定をまとめて保存します。</div>
+          <div class="note">支出、予定、プリセット、カテゴリ、予算設定をまとめて保存します。</div>
         </div>
       </div>
       <div class="footer-actions">
@@ -585,12 +627,16 @@
   <script>
     const yen = new Intl.NumberFormat("ja-JP", { style: "currency", currency: "JPY", maximumFractionDigits: 0 });
     const defaultCategories = ["食費", "日用品", "交通", "外食", "趣味", "スマホ料金", "その他"];
-    const today = new Date();
+    const now = () => {
+      const date = new Date();
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    };
 
     const state = {
       settings: { weeklyBudget: 15000, weekStart: 1, resetDay: 10 },
       entries: [],
       schedules: [],
+      presets: [],
       periodStart: null
     };
 
@@ -598,10 +644,13 @@
       periodLabel: document.querySelector("#periodLabel"),
       periodSelect: document.querySelector("#periodSelect"),
       remaining: document.querySelector("#remaining"),
+      remainingLabel: document.querySelector("#remainingLabel"),
       weekPill: document.querySelector("#weekPill"),
       meter: document.querySelector("#meter"),
       weekSpent: document.querySelector("#weekSpent"),
+      weekSpentLabel: document.querySelector("#weekSpentLabel"),
       dailySafe: document.querySelector("#dailySafe"),
+      dailySafeLabel: document.querySelector("#dailySafeLabel"),
       periodSpent: document.querySelector("#periodSpent"),
       periodRemaining: document.querySelector("#periodRemaining"),
       periodPlanned: document.querySelector("#periodPlanned"),
@@ -627,6 +676,15 @@
       categoryForm: document.querySelector("#categoryForm"),
       newCategory: document.querySelector("#newCategory"),
       categoryList: document.querySelector("#categoryList"),
+      presetStrip: document.querySelector("#presetStrip"),
+      presetForm: document.querySelector("#presetForm"),
+      presetEditingId: document.querySelector("#presetEditingId"),
+      presetName: document.querySelector("#presetName"),
+      presetAmount: document.querySelector("#presetAmount"),
+      presetCategory: document.querySelector("#presetCategory"),
+      presetSubmit: document.querySelector("#presetSubmit"),
+      presetList: document.querySelector("#presetList"),
+      presetCount: document.querySelector("#presetCount"),
       backupData: document.querySelector("#backupData"),
       restoreData: document.querySelector("#restoreData"),
       restoreFile: document.querySelector("#restoreFile"),
@@ -654,6 +712,7 @@
       const d = String(date.getDate()).padStart(2, "0");
       return `${y}-${m}-${d}`;
     };
+    let renderedDate = ymd(now());
 
     const parseYmd = (value) => {
       const [y, m, d] = value.split("-").map(Number);
@@ -671,19 +730,30 @@
     const parseAmount = (value) => Number(String(value).replace(/[^\d]/g, "") || 0);
 
     function load() {
+      const currentDate = now();
       const settings = JSON.parse(localStorage.getItem("kakeibo-settings") || "null");
       if (settings) state.settings = { ...state.settings, ...settings };
       state.settings.resetDay = clampResetDay(state.settings.resetDay || 10);
       migrateOldEntries();
       state.entries = getAllEntries();
       state.schedules = JSON.parse(localStorage.getItem("kakeibo-schedules") || "[]");
-      state.periodStart = localStorage.getItem("kakeibo-last-period") || ymd(getPeriod(today).start);
-      els.date.value = ymd(today);
-      els.scheduleDate.value = ymd(today);
+      state.presets = JSON.parse(localStorage.getItem("kakeibo-presets") || "[]").slice(0, 5);
+      const currentPeriodStart = ymd(getPeriod(currentDate).start);
+      const savedPeriodStart = localStorage.getItem("kakeibo-last-period");
+      const lastOpenDate = localStorage.getItem("kakeibo-last-open-date");
+      const previousCurrentPeriod = lastOpenDate ? ymd(getPeriod(parseYmd(lastOpenDate)).start) : null;
+      state.periodStart = savedPeriodStart && previousCurrentPeriod && savedPeriodStart !== previousCurrentPeriod
+        ? savedPeriodStart
+        : currentPeriodStart;
+      localStorage.setItem("kakeibo-last-period", state.periodStart);
+      localStorage.setItem("kakeibo-last-open-date", ymd(currentDate));
+      els.date.value = ymd(currentDate);
+      els.scheduleDate.value = ymd(currentDate);
       els.weeklyBudget.value = state.settings.weeklyBudget;
       els.resetDay.value = state.settings.resetDay;
       els.weekStart.value = String(state.settings.weekStart);
       renderCategories();
+      renderPresets();
       renderPeriodOptions();
       render();
       els.scheduleEditor.open = state.schedules.length === 0;
@@ -696,6 +766,24 @@
       viewButtons.forEach((button) => button.setAttribute("aria-selected", String(button.dataset.view === view)));
       localStorage.setItem("kakeibo-active-view", view);
       if (scroll) window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function refreshForCurrentDate() {
+      const currentDate = now();
+      const currentKey = ymd(currentDate);
+      if (currentKey !== renderedDate) {
+        const previousPeriodStart = ymd(getPeriod(parseYmd(renderedDate)).start);
+        if (state.periodStart === previousPeriodStart) {
+          state.periodStart = ymd(getPeriod(currentDate).start);
+          localStorage.setItem("kakeibo-last-period", state.periodStart);
+        }
+        if (!els.editingId.value && els.date.value === renderedDate) els.date.value = currentKey;
+        if (!els.scheduleEditingId.value && els.scheduleDate.value === renderedDate) els.scheduleDate.value = currentKey;
+        renderedDate = currentKey;
+        localStorage.setItem("kakeibo-last-open-date", currentKey);
+        renderPeriodOptions();
+      }
+      render();
     }
 
     function clampResetDay(value) {
@@ -712,6 +800,10 @@
 
     function saveSchedules() {
       localStorage.setItem("kakeibo-schedules", JSON.stringify(state.schedules));
+    }
+
+    function savePresets() {
+      localStorage.setItem("kakeibo-presets", JSON.stringify(state.presets));
     }
 
     function migrateOldEntries() {
@@ -820,14 +912,14 @@
       return getPeriodByStart(state.periodStart);
     }
 
-    function currentWeek(period) {
+    function currentWeek(period, currentDate) {
       const weeks = getWeeks(period);
-      const now = ymd(today) >= ymd(period.start) && ymd(today) <= ymd(period.end) ? today : period.start;
-      return weeks.find((week) => now >= week.start && now <= week.end) || weeks[0];
+      if (currentDate < period.start || currentDate > period.end) return null;
+      return weeks.find((week) => currentDate >= week.start && currentDate <= week.end) || null;
     }
 
-    function daysLeftInWeek(week) {
-      const base = ymd(today) >= ymd(week.start) && ymd(today) <= ymd(week.end) ? today : week.start;
+    function daysLeftInWeek(week, currentDate) {
+      const base = currentDate >= week.start && currentDate <= week.end ? currentDate : week.start;
       const start = new Date(base.getFullYear(), base.getMonth(), base.getDate());
       return Math.max(1, Math.floor((week.end - start) / 86400000) + 1);
     }
@@ -841,9 +933,10 @@
     }
 
     function renderPeriodOptions() {
-      const starts = new Set([ymd(getPeriod(today).start), state.periodStart]);
+      const currentDate = now();
+      const starts = new Set([ymd(getPeriod(currentDate).start), state.periodStart]);
       for (let offset = -3; offset <= 12; offset += 1) {
-        starts.add(ymd(addMonths(getPeriod(today).start, offset)));
+        starts.add(ymd(addMonths(getPeriod(currentDate).start, offset)));
       }
       state.entries.forEach((entry) => starts.add(ymd(getPeriod(parseYmd(entry.date)).start)));
       state.schedules.filter((item) => item.type === "once").forEach((item) => starts.add(ymd(getPeriod(parseYmd(item.date)).start)));
@@ -862,12 +955,14 @@
       const categories = getCategories();
       els.category.innerHTML = "";
       els.scheduleCategory.innerHTML = "";
+      els.presetCategory.innerHTML = "";
       categories.forEach((category) => {
         const option = document.createElement("option");
         option.value = category;
         option.textContent = category;
         els.category.append(option);
         els.scheduleCategory.append(option.cloneNode(true));
+        els.presetCategory.append(option.cloneNode(true));
       });
       els.category.value = categories.includes(selected) ? selected : categories[0];
       els.categoryList.innerHTML = "";
@@ -879,10 +974,33 @@
       });
     }
 
+    function renderPresets() {
+      els.presetCount.textContent = `${state.presets.length} / 5`;
+      els.presetStrip.innerHTML = "";
+      els.presetList.innerHTML = "";
+      els.presetStrip.hidden = state.presets.length === 0;
+
+      state.presets.forEach((preset) => {
+        const quickButton = document.createElement("button");
+        quickButton.className = "preset-button";
+        quickButton.type = "button";
+        quickButton.dataset.presetApply = preset.id;
+        quickButton.innerHTML = `<strong>${escapeHtml(preset.name)}</strong><span>${yen.format(preset.amount)}</span>`;
+        els.presetStrip.append(quickButton);
+
+        const item = document.createElement("div");
+        item.className = "row";
+        item.innerHTML = `<div><div class="row-name">${escapeHtml(preset.name)}</div><div class="row-sub">${escapeHtml(preset.category)}</div></div><div class="schedule-amount"><strong>${yen.format(preset.amount)}</strong><div class="schedule-actions"><button class="icon-button" type="button" data-preset-edit="${preset.id}" aria-label="編集">✎</button><button class="icon-button danger" type="button" data-preset-delete="${preset.id}" aria-label="削除">×</button></div></div>`;
+        els.presetList.append(item);
+      });
+    }
+
     function render() {
+      const currentDate = now();
       const period = currentPeriod();
       const weeks = getWeeks(period);
-      const week = currentWeek(period);
+      const current = currentWeek(period, currentDate);
+      const week = current || (period.end < currentDate ? weeks[weeks.length - 1] : weeks[0]);
       const weekSpent = sumEntries(entriesForWeek(week));
       const periodEntries = getPeriodEntries(period);
       const occurrences = getScheduleOccurrences(period);
@@ -894,12 +1012,17 @@
       const usedPercent = state.settings.weeklyBudget > 0 ? Math.min(100, (weekSpent / state.settings.weeklyBudget) * 100) : 0;
 
       els.periodLabel.textContent = `${formatRange(period)} の支出`;
+      els.remainingLabel.textContent = current ? "今週あと使える金額" : "表示週の残高";
+      els.weekSpentLabel.textContent = current ? "今週の支出" : "表示週の支出";
+      els.dailySafeLabel.textContent = current ? "1日あたり" : "1日あたり目安";
       els.remaining.textContent = yen.format(weekRemaining);
       els.remaining.classList.toggle("negative", weekRemaining < 0);
       els.weekPill.textContent = formatRange(week);
       els.meter.style.width = `${usedPercent}%`;
       els.weekSpent.textContent = yen.format(weekSpent);
-      els.dailySafe.textContent = yen.format(Math.floor(Math.max(0, weekRemaining) / daysLeftInWeek(week)));
+      els.dailySafe.textContent = current
+        ? yen.format(Math.floor(Math.max(0, weekRemaining) / daysLeftInWeek(week, currentDate)))
+        : "—";
       els.periodSpent.textContent = yen.format(periodSpent);
       els.periodRemaining.textContent = yen.format(periodRemaining);
       els.periodPlanned.textContent = yen.format(plannedSpent);
@@ -908,7 +1031,7 @@
       els.resetDay.value = state.settings.resetDay;
       els.weekStart.value = String(state.settings.weekStart);
 
-      renderWeeks(period, week);
+      renderWeeks(period, current);
       renderHistory(periodEntries);
       renderSchedules(occurrences);
       renderPhoneSummary(periodEntries, occurrences);
@@ -967,8 +1090,9 @@
         const remaining = state.settings.weeklyBudget - spent;
         const row = document.createElement("div");
         row.className = "row";
-        if (ymd(week.start) === ymd(selectedWeek.start)) row.classList.add("current");
-        row.innerHTML = `<div><div class="row-name">第${index + 1}週</div><div class="row-sub">${formatRange(week)}</div></div><div class="row-money">${yen.format(remaining)}<div class="row-sub">支出 ${yen.format(spent)}</div></div>`;
+        const isCurrent = selectedWeek && ymd(week.start) === ymd(selectedWeek.start);
+        if (isCurrent) row.classList.add("current");
+        row.innerHTML = `<div><div class="row-name">第${index + 1}週${isCurrent ? "・今週" : ""}</div><div class="row-sub">${formatRange(week)}</div></div><div class="row-money">${yen.format(remaining)}<div class="row-sub">支出 ${yen.format(spent)}</div></div>`;
         els.weekList.append(row);
       });
     }
@@ -1003,6 +1127,13 @@
       els.submitButton.textContent = "追加する";
     }
 
+    function resetPresetForm() {
+      els.presetEditingId.value = "";
+      els.presetName.value = "";
+      els.presetAmount.value = "";
+      els.presetSubmit.textContent = "追加する";
+    }
+
     function selectedScheduleType() {
       return document.querySelector('input[name="scheduleType"]:checked').value;
     }
@@ -1020,7 +1151,7 @@
       els.scheduleName.value = "";
       els.scheduleAmount.value = "";
       els.scheduleDay.value = "10";
-      els.scheduleDate.value = ymd(today);
+      els.scheduleDate.value = ymd(now());
       document.querySelector('input[name="scheduleType"][value="monthly"]').checked = true;
       els.scheduleSubmit.textContent = "予定を追加";
       syncScheduleType();
@@ -1059,6 +1190,66 @@
       resetForm();
       renderPeriodOptions();
       render();
+    });
+
+    els.presetStrip.addEventListener("click", (event) => {
+      const id = event.target.closest("[data-preset-apply]")?.dataset.presetApply;
+      const preset = state.presets.find((item) => item.id === id);
+      if (!preset) return;
+      resetForm();
+      els.date.value = ymd(now());
+      els.amount.value = preset.amount;
+      els.category.value = getCategories().includes(preset.category) ? preset.category : getCategories()[0];
+      els.note.value = preset.name;
+      els.amount.focus();
+      showToast(`${preset.name}を入力しました`);
+    });
+
+    els.presetForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const editingId = els.presetEditingId.value;
+      if (!editingId && state.presets.length >= 5) return showToast("プリセットは5件までです");
+      const name = els.presetName.value.trim();
+      const amount = parseAmount(els.presetAmount.value);
+      if (!name || !amount) return showToast("名前と金額を入力してください");
+      if (state.presets.some((item) => item.id !== editingId && item.name === name)) return showToast("同じ名前があります");
+      const preset = {
+        id: editingId || crypto.randomUUID(),
+        name,
+        amount,
+        category: els.presetCategory.value
+      };
+      state.presets = editingId
+        ? state.presets.map((item) => item.id === editingId ? preset : item)
+        : [...state.presets, preset];
+      savePresets();
+      renderPresets();
+      resetPresetForm();
+      showToast(editingId ? "プリセットを更新しました" : "プリセットを追加しました");
+    });
+
+    els.presetList.addEventListener("click", (event) => {
+      const editId = event.target.closest("[data-preset-edit]")?.dataset.presetEdit;
+      const deleteId = event.target.closest("[data-preset-delete]")?.dataset.presetDelete;
+      if (editId) {
+        const preset = state.presets.find((item) => item.id === editId);
+        if (!preset) return;
+        els.presetEditingId.value = preset.id;
+        els.presetName.value = preset.name;
+        els.presetAmount.value = preset.amount;
+        els.presetCategory.value = preset.category;
+        els.presetSubmit.textContent = "更新する";
+        els.presetName.focus();
+      }
+      if (deleteId) {
+        const preset = state.presets.find((item) => item.id === deleteId);
+        if (!preset || !confirm(`「${preset.name}」を削除しますか？`)) return;
+        state.presets = state.presets.filter((item) => item.id !== deleteId);
+        savePresets();
+        renderPresets();
+        resetPresetForm();
+        showToast("プリセットを削除しました");
+      }
     });
 
     document.querySelectorAll('input[name="scheduleType"]').forEach((input) => input.addEventListener("change", syncScheduleType));
@@ -1103,7 +1294,7 @@
         els.scheduleAmount.value = schedule.amount;
         els.scheduleCategory.value = schedule.category;
         els.scheduleDay.value = schedule.day || 10;
-        els.scheduleDate.value = schedule.date || ymd(today);
+        els.scheduleDate.value = schedule.date || ymd(now());
         document.querySelector(`input[name="scheduleType"][value="${schedule.type}"]`).checked = true;
         els.scheduleSubmit.textContent = "予定を更新";
         syncScheduleType();
@@ -1169,7 +1360,7 @@
     });
 
     els.todayButton.addEventListener("click", () => {
-      els.date.value = ymd(today);
+      els.date.value = ymd(now());
     });
 
     els.saveSettings.addEventListener("click", () => {
@@ -1179,7 +1370,7 @@
         resetDay: clampResetDay(els.resetDay.value)
       };
       localStorage.setItem("kakeibo-settings", JSON.stringify(state.settings));
-      state.periodStart = ymd(getPeriod(today).start);
+      state.periodStart = ymd(getPeriod(now()).start);
       localStorage.setItem("kakeibo-last-period", state.periodStart);
       renderPeriodOptions();
       render();
@@ -1212,6 +1403,7 @@
       const category = event.target.closest("[data-category-delete]")?.dataset.categoryDelete;
       if (!category) return;
       if (defaultCategories.includes(category)) return showToast("標準カテゴリは残しています");
+      if (state.presets.some((preset) => preset.category === category)) return showToast("プリセットで使用中のカテゴリです");
       saveCategories(getCategories().filter((item) => item !== category));
       renderCategories();
       showToast("カテゴリを削除しました");
@@ -1220,18 +1412,19 @@
     els.backupData.addEventListener("click", () => {
       const backup = {
         app: "weekly-kakeibo",
-        version: 1,
+        version: 2,
         exportedAt: new Date().toISOString(),
         settings: state.settings,
         entries: state.entries,
         schedules: state.schedules,
+        presets: state.presets,
         categories: getCategories(),
         lastPeriod: state.periodStart
       };
       const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `kakeibo-backup-${ymd(today)}.json`;
+      link.download = `kakeibo-backup-${ymd(now())}.json`;
       link.click();
       setTimeout(() => URL.revokeObjectURL(link.href), 0);
       showToast("バックアップを保存しました");
@@ -1251,6 +1444,7 @@
         localStorage.setItem("kakeibo-settings", JSON.stringify(backup.settings));
         localStorage.setItem("kakeibo-all-entries", JSON.stringify(backup.entries));
         localStorage.setItem("kakeibo-schedules", JSON.stringify(backup.schedules));
+        localStorage.setItem("kakeibo-presets", JSON.stringify(Array.isArray(backup.presets) ? backup.presets.slice(0, 5) : []));
         localStorage.setItem("kakeibo-categories", JSON.stringify(backup.categories));
         if (backup.lastPeriod) localStorage.setItem("kakeibo-last-period", backup.lastPeriod);
         location.reload();
@@ -1274,6 +1468,11 @@
     });
 
     viewButtons.forEach((button) => button.addEventListener("click", () => switchView(button.dataset.view)));
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) refreshForCurrentDate();
+    });
+    window.addEventListener("pageshow", refreshForCurrentDate);
+    window.addEventListener("focus", refreshForCurrentDate);
 
     load();
 
