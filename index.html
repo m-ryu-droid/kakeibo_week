@@ -155,6 +155,32 @@
       line-height: 1.35;
     }
 
+    .budget-details { margin-top: -2px; }
+    .budget-details > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 38px;
+      padding: 6px 2px;
+      color: var(--green);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 800;
+      list-style: none;
+    }
+    .budget-details > summary::-webkit-details-marker { display: none; }
+    .budget-details > summary::after {
+      content: "⌄";
+      color: var(--muted);
+      font-size: 16px;
+    }
+    .budget-details[open] > summary::after { content: "⌃"; }
+    .budget-details-body {
+      display: grid;
+      gap: 10px;
+      padding-top: 6px;
+    }
+
     .remaining {
       margin-top: 4px;
       font-size: clamp(34px, 10vw, 50px);
@@ -259,20 +285,20 @@
     }
     .preset-strip::-webkit-scrollbar { display: none; }
     .preset-button {
-      flex: 0 0 112px;
-      min-height: 58px;
-      padding: 8px 10px;
+      flex: 0 0 auto;
+      min-height: 42px;
+      padding: 8px 12px;
       border: 1px solid rgba(255,255,255,.72);
       border-radius: 8px;
       background: linear-gradient(135deg, rgba(235,249,244,.9), rgba(255,239,244,.86));
       color: var(--ink);
-      text-align: left;
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
       box-shadow: 0 7px 16px rgba(67,87,79,.07);
       cursor: pointer;
     }
-    .preset-button strong, .preset-button span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .preset-button strong { font-size: 13px; }
-    .preset-button span { margin-top: 3px; color: var(--pink); font-size: 12px; font-weight: 900; }
+    .preset-button span { color: var(--pink); }
     .preset-list { display: grid; gap: 8px; }
     .preset-form { display: grid; gap: 10px; }
     .preset-count { color: var(--muted); font-size: 11px; font-weight: 800; }
@@ -478,13 +504,18 @@
         <div class="pill" id="weekPill">今週</div>
       </div>
       <div class="meter" aria-hidden="true"><span id="meter"></span></div>
-      <div class="stats">
-        <div class="stat"><span class="label" id="weekSpentLabel">今週の支出</span><strong id="weekSpent">¥0</strong></div>
-        <div class="stat"><span class="label" id="dailySafeLabel">1日あたり</span><strong id="dailySafe">¥0</strong></div>
-        <div class="stat"><span class="label">期間の支出</span><strong id="periodSpent">¥0</strong></div>
-        <div class="stat"><span class="label">期間の残高</span><strong id="periodRemaining">¥0</strong></div>
-      </div>
-      <div class="summary-note"><span>うち今後の予定</span><strong id="periodPlanned">¥0</strong></div>
+      <details class="budget-details">
+        <summary>内訳を見る</summary>
+        <div class="budget-details-body">
+          <div class="stats">
+            <div class="stat"><span class="label" id="weekSpentLabel">今週の支出</span><strong id="weekSpent">¥0</strong></div>
+            <div class="stat"><span class="label" id="dailySafeLabel">1日あたり</span><strong id="dailySafe">¥0</strong></div>
+            <div class="stat"><span class="label">期間の支出</span><strong id="periodSpent">¥0</strong></div>
+            <div class="stat"><span class="label">期間の残高</span><strong id="periodRemaining">¥0</strong></div>
+          </div>
+          <div class="summary-note"><span>うち今後の予定</span><strong id="periodPlanned">¥0</strong></div>
+        </div>
+      </details>
     </section>
 
     <section class="panel phone-card" aria-labelledby="phoneTitle" data-view-section="home">
@@ -985,7 +1016,8 @@
         quickButton.className = "preset-button";
         quickButton.type = "button";
         quickButton.dataset.presetApply = preset.id;
-        quickButton.innerHTML = `<strong>${escapeHtml(preset.name)}</strong><span>${yen.format(preset.amount)}</span>`;
+        quickButton.setAttribute("aria-label", `${preset.name}を${preset.amount}円で登録`);
+        quickButton.innerHTML = `${escapeHtml(preset.name)} <span>（${yen.format(preset.amount)}）</span>`;
         els.presetStrip.append(quickButton);
 
         const item = document.createElement("div");
@@ -1196,13 +1228,23 @@
       const id = event.target.closest("[data-preset-apply]")?.dataset.presetApply;
       const preset = state.presets.find((item) => item.id === id);
       if (!preset) return;
+      const entryDate = ymd(now());
+      const entry = {
+        id: crypto.randomUUID(),
+        amount: preset.amount,
+        date: entryDate,
+        category: getCategories().includes(preset.category) ? preset.category : getCategories()[0],
+        note: preset.name,
+        createdAt: Date.now()
+      };
+      state.entries.push(entry);
+      state.periodStart = ymd(getPeriod(parseYmd(entryDate)).start);
+      localStorage.setItem("kakeibo-last-period", state.periodStart);
+      saveAllEntries();
       resetForm();
-      els.date.value = ymd(now());
-      els.amount.value = preset.amount;
-      els.category.value = getCategories().includes(preset.category) ? preset.category : getCategories()[0];
-      els.note.value = preset.name;
-      els.amount.focus();
-      showToast(`${preset.name}を入力しました`);
+      renderPeriodOptions();
+      render();
+      showToast(`${preset.name} ${yen.format(preset.amount)}を登録しました`);
     });
 
     els.presetForm.addEventListener("submit", (event) => {
