@@ -536,12 +536,12 @@
         <summary>内訳を見る</summary>
         <div class="budget-details-body">
           <div class="stats">
-            <div class="stat"><span class="label" id="weekSpentLabel">今週の支出</span><strong id="weekSpent">¥0</strong></div>
+            <div class="stat"><span class="label" id="weekSpentLabel">今週の支出・予定</span><strong id="weekSpent">¥0</strong></div>
             <div class="stat"><span class="label" id="dailySafeLabel">1日あたり</span><strong id="dailySafe">¥0</strong></div>
-            <div class="stat"><span class="label">期間の支出</span><strong id="periodSpent">¥0</strong></div>
+            <div class="stat"><span class="label">期間の支出・予定</span><strong id="periodSpent">¥0</strong></div>
             <div class="stat"><span class="label">期間の残高</span><strong id="periodRemaining">¥0</strong></div>
           </div>
-          <div class="summary-note"><span>うち今後の予定</span><strong id="periodPlanned">¥0</strong></div>
+          <div class="summary-note"><span>うち未処理の予定</span><strong id="periodPlanned">¥0</strong></div>
         </div>
       </details>
     </section>
@@ -553,7 +553,7 @@
       </div>
       <div class="mini-stats">
         <div class="mini-stat"><span class="label">支払済み</span><strong id="phoneActual">¥0</strong></div>
-        <div class="mini-stat"><span class="label">これから</span><strong id="phonePlanned">¥0</strong></div>
+        <div class="mini-stat"><span class="label">未処理</span><strong id="phonePlanned">¥0</strong></div>
       </div>
     </section>
 
@@ -803,6 +803,7 @@
       state.entries = getAllEntries();
       state.schedules = JSON.parse(localStorage.getItem("kakeibo-schedules") || "[]");
       state.presets = JSON.parse(localStorage.getItem("kakeibo-presets") || "[]").slice(0, 5);
+      ensureAutoPostSafetySnapshot();
       const currentPeriodStart = ymd(getPeriod(currentDate).start);
       const savedPeriodStart = localStorage.getItem("kakeibo-last-period");
       const lastOpenDate = localStorage.getItem("kakeibo-last-open-date");
@@ -812,6 +813,7 @@
         : currentPeriodStart;
       localStorage.setItem("kakeibo-last-period", state.periodStart);
       localStorage.setItem("kakeibo-last-open-date", ymd(currentDate));
+      const autoPostedCount = reconcileDueSchedules(currentDate);
       els.date.value = ymd(currentDate);
       els.scheduleDate.value = ymd(currentDate);
       els.weeklyBudget.value = state.settings.weeklyBudget;
@@ -821,8 +823,9 @@
       renderPresets();
       renderPeriodOptions();
       render();
-      els.scheduleEditor.open = state.schedules.length === 0;
+      els.scheduleEditor.open = activeSchedules().length === 0;
       switchView(localStorage.getItem("kakeibo-active-view") || "home", false);
+      if (autoPostedCount) showToast(`期限の予定${autoPostedCount}件を支出へ移しました`);
     }
 
     function switchView(view, scroll = true) {
@@ -848,7 +851,9 @@
         localStorage.setItem("kakeibo-last-open-date", currentKey);
         renderPeriodOptions();
       }
+      const autoPostedCount = reconcileDueSchedules(currentDate);
       render();
+      if (autoPostedCount) showToast(`期限の予定${autoPostedCount}件を支出へ移しました`);
     }
 
     function clampResetDay(value) {
@@ -869,6 +874,90 @@
 
     function savePresets() {
       localStorage.setItem("kakeibo-presets", JSON.stringify(state.presets));
+    }
+
+    function activeSchedules() {
+      return state.schedules.filter((schedule) => {
+        if (schedule.type === "monthly") return true;
+        const originalPeriodKey = ymd(getPeriod(parseYmd(schedule.date)).start);
+        return !schedule.completedAt && !schedule.skipped?.includes(originalPeriodKey);
+      });
+    }
+
+    function ensureAutoPostSafetySnapshot() {
+      if (localStorage.getItem("kakeibo-auto-post-snapshot-v1")) return;
+      try {
+        localStorage.setItem("kakeibo-auto-post-snapshot-v1", JSON.stringify({
+          createdAt: new Date().toISOString(),
+          entries: state.entries,
+          schedules: state.schedules
+        }));
+      } catch (_) {}
+    }
+
+    function reconcileDueSchedules(currentDate = now()) {
+      const currentPeriod = getPeriod(currentDate);
+      let postedCount = 0;
+      let schedulesChanged = false;
+
+      function postOccurrence(schedule, dueDate, occurrencePeriodKey) {
+        if (!dueDate || parseYmd(dueDate) > currentDate || schedule.skipped?.includes(occurrencePeriodKey)) return;
+        const existingEntry = state.entries.find((entry) => (
+          entry.sourceScheduleId === schedule.id
+          && (entry.sourceOccurrenceDate === dueDate || entry.sourcePeriodKey === occurrencePeriodKey)
+        ));
+        const amount = Number(schedule.overrides?.[occurrencePeriodKey] ?? schedule.amount);
+
+        if (!existingEntry) {
+          state.entries.push({
+            id: crypto.randomUUID(),
+            amount,
+            date: dueDate,
+            category: schedule.category,
+            note: schedule.name,
+            createdAt: Date.now(),
+            sourceScheduleId: schedule.id,
+            sourcePeriodKey: occurrencePeriodKey,
+            sourceOccurrenceDate: dueDate
+          });
+          postedCount += 1;
+        }
+
+        if (schedule.type === "once") {
+          schedule.completedAt = dueDate;
+        } else {
+          schedule.skipped = [...new Set([...(schedule.skipped || []), occurrencePeriodKey])];
+        }
+        schedulesChanged = true;
+      }
+
+      state.schedules.forEach((schedule) => {
+        if (schedule.type === "once") {
+          const occurrencePeriodKey = ymd(getPeriod(parseYmd(schedule.date)).start);
+          if (schedule.completedAt || schedule.skipped?.includes(occurrencePeriodKey)) return;
+          postOccurrence(schedule, schedule.date, occurrencePeriodKey);
+          return;
+        }
+
+        let periodStart = schedule.createdAt
+          ? getPeriod(parseYmd(schedule.createdAt)).start
+          : currentPeriod.start;
+        let guard = 0;
+        while (periodStart <= currentPeriod.start && guard < 120) {
+          const period = { start: periodStart, end: addDays(addMonths(periodStart, 1), -1) };
+          const occurrencePeriodKey = ymd(period.start);
+          const dueDate = scheduleDateInPeriod(schedule, period);
+          if (!schedule.createdAt || !dueDate || parseYmd(dueDate) >= parseYmd(schedule.createdAt)) {
+            postOccurrence(schedule, dueDate, occurrencePeriodKey);
+          }
+          periodStart = addMonths(periodStart, 1);
+          guard += 1;
+        }
+      });
+
+      if (postedCount) saveAllEntries();
+      if (schedulesChanged) saveSchedules();
+      return postedCount;
     }
 
     function migrateOldEntries() {
@@ -934,11 +1023,29 @@
 
     function getScheduleOccurrences(period) {
       const periodKey = ymd(period.start);
+      const currentDate = now();
       return state.schedules.flatMap((schedule) => {
         const date = scheduleDateInPeriod(schedule, period);
-        if (!date || schedule.skipped?.includes(periodKey)) return [];
-        const amount = Number(schedule.overrides?.[periodKey] ?? schedule.amount);
-        return [{ ...schedule, date, amount, periodKey }];
+        let occurrencePeriodKey = periodKey;
+
+        if (schedule.type === "once") {
+          const originalPeriodKey = ymd(getPeriod(parseYmd(schedule.date)).start);
+          if (schedule.completedAt || schedule.skipped?.includes(originalPeriodKey)) return [];
+          occurrencePeriodKey = originalPeriodKey;
+        }
+
+        if (!date || schedule.skipped?.includes(occurrencePeriodKey)) return [];
+        if (schedule.createdAt && parseYmd(date) < parseYmd(schedule.createdAt)) return [];
+        const amount = Number(schedule.overrides?.[occurrencePeriodKey] ?? schedule.amount);
+        const overdue = parseYmd(schedule.date || date) < currentDate;
+        return [{ ...schedule, date, budgetDate: date, amount, periodKey: occurrencePeriodKey, overdue }];
+      });
+    }
+
+    function occurrencesForWeek(occurrences, week) {
+      return occurrences.filter((occurrence) => {
+        const date = parseYmd(occurrence.budgetDate || occurrence.date);
+        return date >= week.start && date <= week.end;
       });
     }
 
@@ -962,15 +1069,10 @@
     }
 
     function entriesForWeek(week) {
-      const actual = state.entries.filter((entry) => {
+      return state.entries.filter((entry) => {
         const date = parseYmd(entry.date);
         return date >= week.start && date <= week.end;
       });
-      const planned = getScheduleOccurrences(currentPeriod()).filter((entry) => {
-        const date = parseYmd(entry.date);
-        return date >= week.start && date <= week.end;
-      });
-      return [...actual, ...planned];
     }
 
     function currentPeriod() {
@@ -1067,9 +1169,11 @@
       const weeks = getWeeks(period);
       const current = currentWeek(period, currentDate);
       const week = current || (period.end < currentDate ? weeks[weeks.length - 1] : weeks[0]);
-      const weekSpent = sumEntries(entriesForWeek(week));
       const periodEntries = getPeriodEntries(period);
       const occurrences = getScheduleOccurrences(period);
+      const weekActual = sumEntries(entriesForWeek(week));
+      const weekPlanned = sumEntries(occurrencesForWeek(occurrences, week));
+      const weekSpent = weekActual + weekPlanned;
       const plannedSpent = sumEntries(occurrences);
       const periodSpent = sumEntries(periodEntries) + plannedSpent;
       const periodBudget = state.settings.weeklyBudget * weeks.length;
@@ -1079,7 +1183,7 @@
 
       els.periodLabel.textContent = `${formatRange(period)} の支出`;
       els.remainingLabel.textContent = current ? "今週あと使える金額" : "表示週の残高";
-      els.weekSpentLabel.textContent = current ? "今週の支出" : "表示週の支出";
+      els.weekSpentLabel.textContent = current ? "今週の支出・予定" : "表示週の支出・予定";
       els.dailySafeLabel.textContent = current ? "1日あたり" : "1日あたり目安";
       els.remaining.textContent = yen.format(weekRemaining);
       els.remaining.classList.toggle("negative", weekRemaining < 0);
@@ -1097,7 +1201,7 @@
       els.resetDay.value = state.settings.resetDay;
       els.weekStart.value = String(state.settings.weekStart);
 
-      renderWeeks(period, current);
+      renderWeeks(period, current, occurrences);
       renderHistory(periodEntries);
       renderSchedules(occurrences);
       renderPhoneSummary(periodEntries, occurrences);
@@ -1133,32 +1237,40 @@
 
     function renderSchedules(occurrences) {
       els.scheduleList.innerHTML = "";
-      if (!state.schedules.length) {
+      const visibleSchedules = activeSchedules();
+      if (!visibleSchedules.length) {
         els.scheduleList.innerHTML = '<div class="empty">毎月の固定費や、先の支出を登録できます</div>';
         return;
       }
       const occurrenceMap = new Map(occurrences.map((item) => [item.id, item]));
-      state.schedules.forEach((schedule) => {
+      visibleSchedules.forEach((schedule) => {
         const occurrence = occurrenceMap.get(schedule.id);
         const row = document.createElement("div");
         row.className = "row";
         const timing = schedule.type === "monthly" ? `毎月${schedule.day}日` : schedule.date;
         const amount = occurrence?.amount ?? schedule.amount;
-        row.innerHTML = `<div><div class="row-name">${escapeHtml(schedule.name)}</div><div class="row-sub">${timing} · ${escapeHtml(schedule.category)}</div></div><div class="schedule-amount"><strong class="${occurrence ? "planned" : ""}">${yen.format(amount)}</strong><div class="schedule-actions">${occurrence ? `<button class="icon-button" type="button" data-override="${schedule.id}" aria-label="この期間の金額を変更">¥</button><button class="icon-button" type="button" data-paid="${schedule.id}" aria-label="支払済みにする">✓</button>` : ""}<button class="icon-button" type="button" data-schedule-edit="${schedule.id}" aria-label="編集">✎</button><button class="icon-button danger" type="button" data-schedule-delete="${schedule.id}" aria-label="削除">×</button></div></div>`;
+        const selectedPeriodKey = ymd(currentPeriod().start);
+        const status = schedule.type === "monthly" && schedule.skipped?.includes(selectedPeriodKey)
+          ? "今期計上済み"
+          : occurrence?.overdue ? "期限済み・未処理"
+            : occurrence ? "予定" : "表示期間外";
+        row.innerHTML = `<div><div class="row-name">${escapeHtml(schedule.name)}</div><div class="row-sub">${timing} · ${escapeHtml(schedule.category)} · ${status}</div></div><div class="schedule-amount"><strong class="${occurrence ? "planned" : ""}">${yen.format(amount)}</strong><div class="schedule-actions">${occurrence ? `<button class="icon-button" type="button" data-override="${schedule.id}" aria-label="この期間の金額を変更">¥</button><button class="icon-button" type="button" data-paid="${schedule.id}" aria-label="支払済みにする">✓</button>` : ""}<button class="icon-button" type="button" data-schedule-edit="${schedule.id}" aria-label="編集">✎</button><button class="icon-button danger" type="button" data-schedule-delete="${schedule.id}" aria-label="削除">×</button></div></div>`;
         els.scheduleList.append(row);
       });
     }
 
-    function renderWeeks(period, selectedWeek) {
+    function renderWeeks(period, selectedWeek, occurrences) {
       els.weekList.innerHTML = "";
       getWeeks(period).forEach((week, index) => {
         const spent = sumEntries(entriesForWeek(week));
-        const remaining = state.settings.weeklyBudget - spent;
+        const planned = sumEntries(occurrencesForWeek(occurrences, week));
+        const remaining = state.settings.weeklyBudget - spent - planned;
         const row = document.createElement("div");
         row.className = "row";
         const isCurrent = selectedWeek && ymd(week.start) === ymd(selectedWeek.start);
         if (isCurrent) row.classList.add("current");
-        row.innerHTML = `<div><div class="row-name">第${index + 1}週${isCurrent ? "・今週" : ""}</div><div class="row-sub">${formatRange(week)}</div></div><div class="row-money">${yen.format(remaining)}<div class="row-sub">支出 ${yen.format(spent)}</div></div>`;
+        const breakdown = planned ? `支出 ${yen.format(spent)} · 予定 ${yen.format(planned)}` : `支出 ${yen.format(spent)}`;
+        row.innerHTML = `<div><div class="row-name">第${index + 1}週${isCurrent ? "・今週" : ""}</div><div class="row-sub">${formatRange(week)}</div></div><div class="row-money">${yen.format(remaining)}<div class="row-sub">${breakdown}</div></div>`;
         els.weekList.append(row);
       });
     }
@@ -1235,13 +1347,15 @@
       const amount = parseAmount(els.amount.value);
       if (!amount) return showToast("金額を入力してください");
       const editingId = els.editingId.value;
+      const previousEntry = state.entries.find((item) => item.id === editingId);
       const entry = {
+        ...(previousEntry || {}),
         id: editingId || crypto.randomUUID(),
         amount,
         date: els.date.value,
         category: els.category.value,
         note: els.note.value.trim(),
-        createdAt: editingId ? Number(state.entries.find((item) => item.id === editingId)?.createdAt || Date.now()) : Date.now()
+        createdAt: editingId ? Number(previousEntry?.createdAt || Date.now()) : Date.now()
       };
       if (editingId) {
         state.entries = state.entries.map((item) => item.id === editingId ? entry : item);
@@ -1347,15 +1461,18 @@
         day: type === "monthly" ? Math.min(28, Math.max(1, Number(els.scheduleDay.value) || 10)) : null,
         date: type === "once" ? els.scheduleDate.value : null,
         overrides: previous?.overrides || {},
-        skipped: previous?.skipped || []
+        skipped: previous?.skipped || [],
+        completedAt: type === "once" ? previous?.completedAt || null : null,
+        createdAt: editingId ? previous?.createdAt || null : ymd(now())
       };
       state.schedules = editingId ? state.schedules.map((item) => item.id === editingId ? schedule : item) : [...state.schedules, schedule];
       saveSchedules();
+      const autoPostedCount = reconcileDueSchedules(now());
       renderPeriodOptions();
       render();
       resetScheduleForm();
       els.scheduleEditor.open = false;
-      showToast(editingId ? "予定を更新しました" : "予定を追加しました");
+      showToast(autoPostedCount ? "予定を支出へ登録しました" : editingId ? "予定を更新しました" : "予定を追加しました");
     });
 
     els.scheduleList.addEventListener("click", (event) => {
@@ -1404,8 +1521,23 @@
         const schedule = state.schedules.find((item) => item.id === paidId);
         const occurrence = getScheduleOccurrences(currentPeriod()).find((item) => item.id === paidId);
         if (!schedule || !occurrence) return;
-        state.entries.push({ id: crypto.randomUUID(), amount: occurrence.amount, date: occurrence.date, category: occurrence.category, note: schedule.name, createdAt: Date.now() });
-        schedule.skipped = [...(schedule.skipped || []), occurrence.periodKey];
+        const paidDate = parseYmd(occurrence.date) <= now() ? ymd(now()) : occurrence.date;
+        state.entries.push({
+          id: crypto.randomUUID(),
+          amount: occurrence.amount,
+          date: paidDate,
+          category: occurrence.category,
+          note: schedule.name,
+          createdAt: Date.now(),
+          sourceScheduleId: schedule.id,
+          sourcePeriodKey: occurrence.periodKey,
+          sourceOccurrenceDate: occurrence.date
+        });
+        if (schedule.type === "once") {
+          schedule.completedAt = paidDate;
+        } else {
+          schedule.skipped = [...new Set([...(schedule.skipped || []), occurrence.periodKey])];
+        }
         saveAllEntries();
         saveSchedules();
         render();
